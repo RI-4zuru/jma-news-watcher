@@ -1,0 +1,142 @@
+{
+  "generated_at": null,
+  "success_feeds": 0,
+  "total_feeds": 17,
+  "errors": [],
+  "new_ids": [],
+  "categories": [
+    {
+      "id": "forestfire",
+      "name": "林野火災",
+      "icon": "🌲",
+      "priority": 2
+    },
+    {
+      "id": "housefire",
+      "name": "住宅火災",
+      "icon": "🏠",
+      "priority": 2
+    },
+    {
+      "id": "water",
+      "name": "水難事故",
+      "icon": "🛟",
+      "priority": 2
+    },
+    {
+      "id": "dust",
+      "name": "黄砂・大気",
+      "icon": "🌫️",
+      "priority": 1
+    },
+    {
+      "id": "quake",
+      "name": "地震",
+      "icon": "📳",
+      "priority": 2
+    },
+    {
+      "id": "tsunami",
+      "name": "津波",
+      "icon": "🌊",
+      "priority": 3
+    },
+    {
+      "id": "landslide",
+      "name": "土砂災害",
+      "icon": "⛰️",
+      "priority": 3
+    },
+    {
+      "id": "flood",
+      "name": "河川・浸水",
+      "icon": "💧",
+      "priority": 3
+    },
+    {
+      "id": "tornado",
+      "name": "竜巻・突風",
+      "icon": "🌪️",
+      "priority": 2
+    },
+    {
+      "id": "hail",
+      "name": "降雹",
+      "icon": "🧊",
+      "priority": 2
+    },
+    {
+      "id": "fog",
+      "name": "濃霧",
+      "icon": "🌁",
+      "priority": 1
+    },
+    {
+      "id": "frost",
+      "name": "霜・低温",
+      "icon": "❄️",
+      "priority": 1
+    },
+    {
+      "id": "heavyrain",
+      "name": "大雨",
+      "icon": "🌧️",
+      "priority": 2
+    },
+    {
+      "id": "typhoon",
+      "name": "台風・暴風",
+      "icon": "🌀",
+      "priority": 2
+    },
+    {
+      "id": "snow",
+      "name": "大雪・雪崩",
+      "icon": "⛄",
+      "priority": 2
+    },
+    {
+      "id": "coast",
+      "name": "高潮・高波",
+      "icon": "🌊",
+      "priority": 2
+    },
+    {
+      "id": "volcano",
+      "name": "火山",
+      "icon": "🌋",
+      "priority": 2
+    },
+    {
+      "id": "heat",
+      "name": "猛暑・熱中症",
+      "icon": "☀️",
+      "priority": 2
+    },
+    {
+      "id": "lightning",
+      "name": "雷・落雷",
+      "icon": "⚡",
+      "priority": 2
+    },
+    {
+      "id": "dryness",
+      "name": "乾燥・渇水",
+      "icon": "🍂",
+      "priority": 1
+    },
+    {
+      "id": "cold",
+      "name": "寒波",
+      "icon": "🥶",
+      "priority": 1
+    },
+    {
+      "id": "climate",
+      "name": "異常気象",
+      "icon": "🌡️",
+      "priority": 1
+    }
+  ],
+  "items": []
+}

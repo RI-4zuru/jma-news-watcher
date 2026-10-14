@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b2233">
+<title>気象・防災ニュース監視 | JMA News Watcher</title>
+<style>
+:root{color-scheme:light;--navy:#102b3c;--navy2:#17384c;--bg:#f2f5f7;--white:#fff;--text:#203743;--sub:#67808c;--line:#dfe7ea;--accent:#007f82;--accent2:#e5f3f2;--danger:#b43c39;--amber:#b26b13;--shadow:0 7px 25px rgba(28,64,74,.04)}
+*{box-sizing:border-box}html,body{margin:0}body{font:14px/1.6 -apple-system,BlinkMacSystemFont,"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #6bcbd0;outline-offset:2px}a{color:inherit;text-decoration:none}
+header{background:linear-gradient(114deg,#102b3c,#104552);color:#f7ffff}header .top{max-width:1540px;margin:auto;padding:22px 28px 17px;display:flex;justify-content:space-between;gap:18px;align-items:center}.brand{display:flex;align-items:center;gap:14px}.brandicon{width:47px;height:47px;display:flex;align-items:center;justify-content:center;font-size:26px;background:#ffffff14;border:1px solid #ffffff30;border-radius:13px}.suptitle{font-size:10px;letter-spacing:2.2px;color:#aad3d3;font-weight:800}.brand h1{margin:0;font-size:23px;line-height:1.25;letter-spacing:.3px}.brand p{margin:4px 0 0;color:#b8d0d6;font-size:12px}.topright{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.status{padding:7px 11px;border:1px solid #ffffff35;border-radius:9px;font-size:12px;color:#d3e7eb;background:#ffffff10}.status i{display:inline-block;background:#78d6ad;width:7px;height:7px;border-radius:50%;margin-right:7px}.status.warn i{background:#ffc76e}.headbtn{border:1px solid #ffffff50;background:#ffffff12;border-radius:9px;color:white;padding:7px 11px}.headbtn:hover{background:#ffffff22}
+.metrics{border-top:1px solid #ffffff1e;background:#07263748}.metrics-inner{max-width:1540px;padding:12px 28px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.metric{display:flex;gap:10px;align-items:baseline}.metric strong{font-size:25px;line-height:1.1;font-variant-numeric:tabular-nums}.metric span{font-size:12px;color:#b3ccd1}
+.layout{max-width:1540px;margin:22px auto 60px;padding:0 28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:19px}.sidebar,.panel{background:white;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.sidebar{padding:17px 12px;align-self:start;position:sticky;top:16px}.side-heading{display:flex;justify-content:space-between;align-items:center;padding:0 8px 11px}.side-heading h2{font-size:13px;margin:0;letter-spacing:.4px}.side-heading small{font-size:11px;color:var(--sub)}.catlist{display:flex;flex-direction:column;gap:3px}.cat{border:none;background:transparent;border-radius:8px;width:100%;padding:7px 10px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;color:#3e5965;font-size:13px}.cat:hover{background:#f3f6f7}.cat.active{color:#006e73;background:var(--accent2);font-weight:800}.cat .n{font-size:11px;color:#8499a3;background:#f2f5f6;padding:1px 7px;border-radius:20px;min-width:30px;text-align:center}.cat.active .n{color:#007a7c;background:white}.sidebar-note{border-top:1px solid var(--line);margin:13px 4px 0;padding:12px 7px 0;font-size:11px;color:var(--sub)}.sidebar-note b{display:block;color:#344e5b;margin-bottom:4px}
+.main{min-width:0}.filters{padding:15px 17px}.filter-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.searchbox{display:flex;align-items:center;border:1px solid #ccdadd;border-radius:9px;min-width:220px;flex:1;background:white;padding-left:12px}.searchbox span{color:#718a95}.searchbox input{border:0;outline:0;width:100%;padding:10px 9px;background:transparent;min-width:0}select{padding:9px 30px 9px 11px;border:1px solid #ccdadd;border-radius:9px;max-width:170px;color:#36505e;background:white}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.tab{padding:6px 11px;border:1px solid #dce5e8;background:#f7f9fa;border-radius:30px;font-size:12px;color:#5b7380}.tab.active{border-color:#acd5d1;background:#e3f5f1;color:#006e70;font-weight:800}.filter-right{margin-left:auto;display:flex;gap:8px}.smallbtn{background:white;border:1px solid #d6e1e4;color:#4c6672;border-radius:8px;padding:7px 11px;font-size:12px}.smallbtn:hover{background:#f1f7f7}.smallbtn.primary{background:var(--accent);border-color:var(--accent);color:white}.smallbtn.primary:hover{background:#006b6e}
+.results-head{display:flex;align-items:center;justify-content:space-between;margin:17px 2px 11px;gap:12px}.results-head h2{font-size:17px;margin:0}.results-head h2 span{font-size:13px;color:#81949d;font-weight:400;margin-left:8px}.results-head .tip{font-size:11px;color:#778d98;text-align:right}.articles{display:grid;gap:9px}.article{background:white;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:13px 17px 12px 16px;position:relative;overflow:hidden;transition:border-color .15s}.article:hover{border-color:#9dc5c7}.article::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#96b4bb}.article.priority3::before{background:#d6514d}.article.priority2::before{background:#e3a046}.article.is-read{opacity:.72}.article.is-read h3{font-weight:500}.art-main{display:flex;align-items:flex-start;gap:16px}.artbody{min-width:0;flex:1}.artmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.chip{font-size:10px;padding:2px 7px;border-radius:5px;background:#eff3f5;color:#4c6874;font-weight:700}.chip.danger{background:#fff0ed;color:#b14442}.chip.warning{background:#fff5e7;color:#9d671c}.chip.catname{background:#eaf5f4;color:#007476}.chip.new{color:#c83731;background:#ffedea}.article h3{font-size:15px;line-height:1.48;font-weight:800;margin:0 0 7px;overflow-wrap:anywhere}.article h3 a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.foot{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11px;color:#778f9a}.foot strong{color:#4b6470;font-weight:700}.foot .dot{color:#c0cdd2}.art-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}.iconbtn{border:1px solid #e0e8ea;border-radius:7px;background:#fff;color:#68818c;font-size:12px;min-width:68px;padding:5px 7px}.iconbtn:hover{background:#eef5f5}.iconbtn.saved{color:#b17a14;background:#fffaeb}.empty{background:white;border:1px dashed #cbdade;border-radius:13px;padding:52px 20px;text-align:center;color:#7b909b}.empty .glyph{font-size:32px}.empty h3{color:#3d5864;margin:9px 0 4px}.empty p{font-size:13px;max-width:570px;margin:0 auto}.footnotice{margin:17px 4px;font-size:11px;color:#8397a1;line-height:1.8}#loadMore{margin:15px auto 0;display:block;min-width:180px}.hide{display:none!important}.errorbar{border:1px solid #efd6aa;background:#fff8eb;color:#865c19;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px}.kbd{border:1px solid #d9e3e6;background:#f9fafb;border-radius:4px;padding:1px 4px}
+@media(max-width:850px){header .top{padding:16px;align-items:flex-start}.metrics-inner{padding:11px 16px;grid-template-columns:repeat(2,1fr);gap:10px}.layout{padding:0 13px;grid-template-columns:1fr;gap:12px;margin-top:12px}.sidebar{position:static;padding:12px}.catlist{flex-direction:row;flex-wrap:wrap}.cat{width:auto;border:1px solid #eef2f3;padding:5px 9px}.sidebar-note{display:none}.filters{padding:12px}.results-head .tip{display:none}}
+@media(max-width:550px){.brand h1{font-size:17px}.brandicon{width:36px;height:36px;font-size:21px}.brand p{font-size:11px}.topright{width:100%;justify-content:flex-start}.top{flex-wrap:wrap}.searchbox{width:100%;flex-basis:100%}.filter-row select{flex:1;max-width:none}.filter-right{width:100%;margin-left:0}.filter-right button{flex:1}.art-main{gap:5px;flex-direction:column}.art-actions{flex-direction:row}.article{padding:11px 13px}.article h3{font-size:14px}.metric strong{font-size:22px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="top">
+  <div class="brand"><div class="brandicon">🌦️</div><div><div class="suptitle">WEATHER & DISASTER INTELLIGENCE</div><h1>気象・防災ニュース監視</h1><p>災害・現象別に全国ニュースを収集　｜　近畿地方の情報も素早く確認</p></div></div>
+  <div class="topright"><div id="status" class="status"><i></i><span id="updated">データ待機中</span></div><button id="browserNotify" class="headbtn" title="ページを開いている間のブラウザ通知">🔔 ブラウザ通知</button><button id="refresh" class="headbtn">↻ 表示更新</button></div>
+ </div>
+ <div class="metrics"><div class="metrics-inner"><div class="metric"><strong id="statAll">0</strong><span>保管中の記事</span></div><div class="metric"><strong id="statDay">0</strong><span>過去24時間</span></div><div class="metric"><strong id="statNew">0</strong><span>直近収集の新着</span></div><div class="metric"><strong id="statKinki">0</strong><span>近畿に関連</span></div></div></div>
+</header>
+<div class="layout">
+ <aside class="sidebar"><div class="side-heading"><h2>カテゴリから探す</h2><small id="categoryCount"></small></div><div class="catlist" id="categories"></div><div class="sidebar-note"><b>対象ジャンル</b>火災、事故、黄砂、地震、津波、土砂・河川災害、突風、降雹、濃霧、霜のほか、大雨・雪・火山・猛暑などを広く検索します。</div></aside>
+ <main class="main">
+  <section class="filters panel"><div class="filter-row"><label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="見出し・地域・報道機関を検索" aria-label="ニュース検索"></label><select id="area" aria-label="対象地域"><option value="all">全国すべて</option><option value="kinki">近畿6府県</option><option value="大阪">大阪</option><option value="京都">京都</option><option value="兵庫">兵庫</option><option value="滋賀">滋賀</option><option value="奈良">奈良</option><option value="和歌山">和歌山</option><option value="unknown">地域判定なし</option></select><select id="period" aria-label="期間"><option value="all">すべての期間</option><option value="24">過去24時間</option><option value="72">過去3日間</option><option value="168">過去7日間</option></select></div><div class="tabs"><button class="tab active" data-view="all">すべて</button><button class="tab" data-view="unread">未読</button><button class="tab" data-view="important">重要</button><button class="tab" data-view="new">直近の新着</button><button class="tab" data-view="saved">★ 保存済み</button><div class="filter-right"><button class="smallbtn" id="markVisible">表示分を既読</button><button class="smallbtn" id="export">CSV出力</button><button class="smallbtn primary" id="clearFilters">条件クリア</button></div></div></section>
+  <div id="warnings" role="status"></div>
+  <div class="results-head"><h2 id="currentTitle">最新ニュース <span id="resultCount"></span></h2><div class="tip">見出しを選択するとGoogleニュース経由で元記事を開きます</div></div>
+  <div id="articles" class="articles" aria-live="polite"></div><button id="loadMore" class="smallbtn hide">さらに50件表示</button>
+  <div class="footnotice">※ 検索RSSの見出しをキーワードで自動分類しています。内容の正確性・網羅性は保証されません。日時は日本時間。地域は見出しによる簡易判定のため、地域名がない記事は「地域判定なし」になります。取得先はGoogleニュース経由です。公式の防災情報は必ず気象庁・自治体などの発表でも確認してください。</div>
+ </main>
+</div>
+<script src="./data.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[],new_ids:[]};
+let selectedCat='all',selectedView='all',visibleLimit=50,currentVisible=[];
+const storeKey='jma-news-watcher-v1';
+let storage={read:[],saved:[],notificationBatch:''};
+try{const saved=JSON.parse(localStorage.getItem(storeKey)||'{}');storage={...storage,...saved}}catch(e){}
+function persist(){try{localStorage.setItem(storeKey,JSON.stringify(storage))}catch(e){}}
+function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtDate(d){const date=new Date(d);return Number.isNaN(+date)?'日時不明':new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(date)}
+function catFor(id){return (payload.categories||[]).find(c=>c.id===id)}
+function labelFor(a){return (a.categories||[]).map(catFor).filter(Boolean)}
+function isNew(a){return (payload.new_ids||[]).includes(a.id)}
+function isRead(a){return storage.read.includes(a.id)}
+function isSaved(a){return storage.saved.includes(a.id)}
+function setStatus(){
+ const stamp=payload.generated_at;
+ $('updated').textContent=stamp?`最終収集 ${fmtDate(stamp)}`:'まだ収集されていません';
+ $('status').classList.toggle('warn',!stamp||(payload.success_feeds===0)||(payload.errors||[]).length>0);
+ const arr=payload.items||[];const now=Date.now();
+ $('statAll').textContent=arr.length.toLocaleString('ja-JP');
+ $('statDay').textContent=arr.filter(a=>(now-new Date(a.published_at))<=86400000).length;
+ $('statNew').textContent=(payload.new_ids||[]).length;
+ $('statKinki').textContent=arr.filter(a=>(a.areas||[]).length>0).length;
+ let warnings='';
+ if(!stamp)warnings='<div class="errorbar">まだニュースが収集されていません。ローカル版は <b>update.cmd</b> を実行してください。GitHub版はActionsの初回実行を確認してください。</div>';
+ else if((payload.errors||[]).length)warnings=`<div class="errorbar">⚠ 一部のニュース取得に失敗しました（${payload.errors.length}/${payload.total_feeds} 件の検索）。取得済みの記事は引き続き表示しています。<details><summary>失敗した検索を見る</summary>${(payload.errors||[]).map(x=>esc(x)).join(' / ')}</details></div>`;
+ $('warnings').innerHTML=warnings;
+}
+function drawCats(){
+ const items=payload.items||[];
+ let html=`<button class="cat ${selectedCat==='all'?'active':''}" data-cat="all"><span>📋 すべての分類</span><span class="n">${items.length}</span></button>`;
+ for(const c of payload.categories||[]){const count=items.filter(a=>(a.categories||[]).includes(c.id)).length;
+ html+=`<button class="cat ${selectedCat===c.id?'active':''}" data-cat="${esc(c.id)}"><span>${esc(c.icon)} ${esc(c.name)}</span><span class="n">${count}</span></button>`}
+ $('categories').innerHTML=html;
+ $('categoryCount').textContent=`${(payload.categories||[]).length}分類`;
+}
+function getFiltered(){
+ const area=$('area').value,period=$('period').value,q=$('search').value.toLowerCase().trim();
+ return (payload.items||[]).filter(a=>{
+  if(selectedCat!=='all'&&!(a.categories||[]).includes(selectedCat))return false;
+  if(area==='kinki'&&!(a.areas||[]).length)return false;
+  if(area==='unknown'&&(a.areas||[]).length)return false;
+  if(!['all','kinki','unknown'].includes(area)&&!(a.areas||[]).includes(area))return false;
+  if(period!=='all'&&(Date.now()-new Date(a.published_at).getTime())>Number(period)*3600000)return false;
+  if(selectedView==='unread'&&isRead(a))return false;
+  if(selectedView==='saved'&&!isSaved(a))return false;
+  if(selectedView==='important'&&Number(a.priority)<3)return false;
+  if(selectedView==='new'&&!isNew(a))return false;
+  if(q&&!([a.title,a.source,...(a.areas||[]),...labelFor(a).map(c=>c.name)].join(' ').toLowerCase().includes(q)))return false;
+  return true;
+ }).sort((a,b)=>new Date(b.published_at)-new Date(a.published_at));
+}
+function render(){
+ setStatus();drawCats();
+ document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===selectedView));
+ const list=getFiltered();currentVisible=list.slice(0,visibleLimit);$('resultCount').textContent=`${list.length}件`;
+ const category=catFor(selectedCat);$('currentTitle').firstChild.textContent=category?category.icon+' '+category.name:'最新ニュース ';
+ if(!list.length){$('articles').innerHTML=`<div class="empty"><div class="glyph">${(payload.items||[]).length?'🔎':'🗞️'}</div><h3>${(payload.items||[]).length?'条件に合うニュースはありません':'表示できるニュースがありません'}</h3><p>${(payload.items||[]).length?'検索語や地域・期間の指定を変えてみてください。':'初回収集後、見出しがここに表示されます。分類条件に該当する記事が存在しない場合もあります。'}</p></div>`}
+ else $('articles').innerHTML=currentVisible.map(a=>{
+  const cats=labelFor(a).slice(0,4).map(c=>`<span class="chip catname">${esc(c.icon)} ${esc(c.name)}</span>`).join('');
+  const level=a.priority>=3?'<span class="chip danger">重要</span>':a.priority===2?'<span class="chip warning">注目</span>':'';
+  return `<article class="article priority${a.priority} ${isRead(a)?'is-read':''}" data-id="${esc(a.id)}"><div class="art-main"><div class="artbody"><div class="artmeta">${level}${isNew(a)?'<span class="chip new">NEW</span>':''}${cats}</div><h3><a class="article-link" data-id="${esc(a.id)}" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)} ↗</a></h3><div class="foot"><strong>${esc(a.source)}</strong><span class="dot">·</span><span>${fmtDate(a.published_at)}</span><span class="dot">·</span><span>${(a.areas||[]).length?esc(a.areas.join('・')):'地域判定なし'}</span></div></div><div class="art-actions"><button class="iconbtn ${isSaved(a)?'saved':''}" data-act="save" data-id="${esc(a.id)}">${isSaved(a)?'★ 保存中':'☆ 保存'}</button><button class="iconbtn" data-act="read" data-id="${esc(a.id)}">${isRead(a)?'未読に戻す':'既読にする'}</button></div></div></article>`
+ }).join('');
+ $('loadMore').classList.toggle('hide',list.length<=visibleLimit);
+}
+function toggleId(key,id,value){const set=new Set(storage[key]);if(value)set.add(id);else set.delete(id);storage[key]=Array.from(set).slice(-4000);persist();render()}
+$('categories').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedCat=b.dataset.cat;visibleLimit=50;render()});
+$('articles').addEventListener('click',e=>{
+ const act=e.target.closest('[data-act]');if(act){const id=act.dataset.id;toggleId(act.dataset.act==='save'?'saved':'read',id,act.dataset.act==='save'?!storage.saved.includes(id):!storage.read.includes(id));return}
+ const link=e.target.closest('a.article-link');if(link){if(!storage.read.includes(link.dataset.id)){storage.read.push(link.dataset.id);persist();setTimeout(render,120)}}
+});
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{selectedView=b.dataset.view;visibleLimit=50;render()}));
+['search','area','period'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',()=>{visibleLimit=50;render()}));
+$('clearFilters').addEventListener('click',()=>{selectedCat='all';selectedView='all';$('area').value='all';$('period').value='all';$('search').value='';visibleLimit=50;render()});
+$('markVisible').addEventListener('click',()=>{storage.read=Array.from(new Set([...storage.read,...currentVisible.map(a=>a.id)]));persist();render()});
+$('loadMore').addEventListener('click',()=>{visibleLimit+=50;render()});
+$('export').addEventListener('click',()=>{
+ const csvCell=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+ const rows=[['公開日時(JST)','分類','重要度','地域(簡易判定)','見出し','媒体','GoogleニュースURL'],...getFiltered().map(a=>[fmtDate(a.published_at),labelFor(a).map(c=>c.name).join('・'),a.priority,(a.areas||[]).join('・'),a.title,a.source,a.url])];
+ const content='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');const blob=new Blob([content],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),el=document.createElement('a');el.href=url;el.download='weather_news_'+new Date().toISOString().slice(0,10)+'.csv';el.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+$('browserNotify').addEventListener('click',async()=>{
+ if(!('Notification' in window)){alert('このブラウザでは通知を利用できません。Telegram通知をご利用ください。');return}
+ try{const p=await Notification.requestPermission();if(p==='granted'){alert('ブラウザ通知を許可しました。ページを開いている間、新着収集時に通知します。');storage.notificationBatch=payload.generated_at||'';persist()}else alert('通知が許可されませんでした。ブラウザやWindowsの通知設定を確認してください。')}
+ catch(e){alert('この環境では通知を有効にできません。Telegram通知をご利用ください。')}
+});
+function notifyOnNewBatch(){
+ if(!payload.generated_at||payload.generated_at===storage.notificationBatch)return;
+ const first=storage.notificationBatch==='';storage.notificationBatch=payload.generated_at;persist();
+ if(first||!('Notification' in window)||Notification.permission!=='granted')return;
+ const ids=new Set(payload.new_ids||[]),items=(payload.items||[]).filter(a=>ids.has(a.id));
+ if(items.length){try{new Notification(`気象・防災ニュース：新着${items.length}件`,{body:items.slice(0,2).map(a=>a.title).join(' / ').slice(0,200),tag:'jma-news-updates'})}catch(e){}}
+}
+let inFlight=false;
+function reloadData(){if(inFlight)return;inFlight=true;const s=document.createElement('script');s.src='./data.js?v='+Date.now();s.onload=()=>{payload=window.NEWS_PAYLOAD||payload;inFlight=false;render();notifyOnNewBatch();s.remove()};s.onerror=()=>{inFlight=false;const m=$('warnings');m.innerHTML='<div class="errorbar">ニュースデータを読み込めません。ファイルの配置や通信状態を確認してください。</div>';s.remove()};document.head.appendChild(s)}
+$('refresh').addEventListener('click',reloadData);
+render();notifyOnNewBatch();setInterval(reloadData,120000);
+</script>
+</body>
+</html>

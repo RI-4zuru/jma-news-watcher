@@ -1,0 +1,184 @@
+{
+  "retention_days": 7,
+  "max_items": 900,
+  "desktop_notifications": true,
+  "notify_min_priority": 1,
+  "max_notifications_per_scan": 12,
+  "feeds": [
+    "(\"住宅火災\" OR \"住宅で火事\" OR \"民家で火事\" OR \"建物火災\") when:1d",
+    "(\"山火事\" OR \"林野火災\" OR \"森林火災\") when:1d",
+    "(\"水難事故\" OR \"川で溺れ\" OR \"海で溺れ\" OR \"川に転落\" OR \"海に転落\") when:1d",
+    "(\"黄砂\" OR \"PM2.5\") when:1d",
+    "(\"地震\" OR \"震度\" OR \"津波\") when:1d",
+    "(\"土砂崩れ\" OR \"土砂災害\" OR \"地すべり\") when:1d",
+    "(\"河川氾濫\" OR \"川が氾濫\" OR \"浸水被害\" OR \"道路冠水\") when:1d",
+    "(\"竜巻\" OR \"突風\" OR \"ダウンバースト\") when:1d",
+    "(\"降雹\" OR \"ひょうが\" OR \"雹が\" OR \"ひょう被害\") when:1d",
+    "(\"濃霧\" OR \"霧で視界\" OR \"霧の影響\") when:1d",
+    "(\"霜\" OR \"遅霜\" OR \"霜害\" OR \"霜注意報\") when:1d",
+    "(\"台風\" OR \"暴風\" OR \"大雨\" OR \"線状降水帯\") when:1d",
+    "(\"大雪\" OR \"吹雪\" OR \"雪崩\" OR \"路面凍結\") when:1d",
+    "(\"高潮\" OR \"高波\" OR \"火山噴火\" OR \"噴火警報\") when:1d",
+    "(\"熱中症\" OR \"猛暑\" OR \"酷暑\" OR \"熱波\") when:1d",
+    "(\"落雷\" OR \"雷雨\" OR \"落雷で停電\") when:1d",
+    "(\"乾燥注意報\" OR \"渇水\" OR \"異常気象\" OR \"寒波\") when:1d"
+  ],
+  "categories": [
+    {
+      "id": "forestfire",
+      "name": "林野火災",
+      "icon": "🌲",
+      "priority": 2,
+      "pattern": "山火事|林野火災|森林火災|林野で火災|山林火災|山林で火災"
+    },
+    {
+      "id": "housefire",
+      "name": "住宅火災",
+      "icon": "🏠",
+      "priority": 2,
+      "pattern": "住宅火災|住宅で(の)?火事|住宅で火災|民家で(の)?火事|民家で火災|建物火災|アパートで火災|マンションで火災"
+    },
+    {
+      "id": "water",
+      "name": "水難事故",
+      "icon": "🛟",
+      "priority": 2,
+      "pattern": "水難|溺れ|溺水|流され|遊泳中に|釣り中に海|海水浴で|川に転落|海に転落"
+    },
+    {
+      "id": "dust",
+      "name": "黄砂・大気",
+      "icon": "🌫️",
+      "priority": 1,
+      "pattern": "黄砂|PM2\\.5|微小粒子状物質"
+    },
+    {
+      "id": "quake",
+      "name": "地震",
+      "icon": "📳",
+      "priority": 2,
+      "pattern": "地震|震度[1-7１２３４５６７]|震源|緊急地震速報|余震"
+    },
+    {
+      "id": "tsunami",
+      "name": "津波",
+      "icon": "🌊",
+      "priority": 3,
+      "pattern": "津波|大津波"
+    },
+    {
+      "id": "landslide",
+      "name": "土砂災害",
+      "icon": "⛰️",
+      "priority": 3,
+      "pattern": "土砂(災害|崩れ)|がけ崩れ|崖崩れ|地すべり|土石流|斜面崩壊"
+    },
+    {
+      "id": "flood",
+      "name": "河川・浸水",
+      "icon": "💧",
+      "priority": 3,
+      "pattern": "氾濫|洪水|浸水|冠水|越水|決壊|増水した川|河川の水位"
+    },
+    {
+      "id": "tornado",
+      "name": "竜巻・突風",
+      "icon": "🌪️",
+      "priority": 2,
+      "pattern": "竜巻|突風|ダウンバースト|ガストフロント"
+    },
+    {
+      "id": "hail",
+      "name": "降雹",
+      "icon": "🧊",
+      "priority": 2,
+      "pattern": "降ひょう|降雹|雹が|ひょうが|ひょう被害|ひょうで|雹被害"
+    },
+    {
+      "id": "fog",
+      "name": "濃霧",
+      "icon": "🌁",
+      "priority": 1,
+      "pattern": "濃霧|霧で視界|霧の影響|濃い霧"
+    },
+    {
+      "id": "frost",
+      "name": "霜・低温",
+      "icon": "❄️",
+      "priority": 1,
+      "pattern": "遅霜|初霜|霜害|霜注意報|凍霜害|霜が降り|霜降る|霜の被害"
+    },
+    {
+      "id": "heavyrain",
+      "name": "大雨",
+      "icon": "🌧️",
+      "priority": 2,
+      "pattern": "大雨|豪雨|線状降水帯|記録的短時間大雨|短時間強雨|集中豪雨"
+    },
+    {
+      "id": "typhoon",
+      "name": "台風・暴風",
+      "icon": "🌀",
+      "priority": 2,
+      "pattern": "台風|暴風|強風|暴風雪|最大瞬間風速"
+    },
+    {
+      "id": "snow",
+      "name": "大雪・雪崩",
+      "icon": "⛄",
+      "priority": 2,
+      "pattern": "大雪|豪雪|吹雪|雪崩|降雪|積雪|路面凍結"
+    },
+    {
+      "id": "coast",
+      "name": "高潮・高波",
+      "icon": "🌊",
+      "priority": 2,
+      "pattern": "高潮|高波|波浪|うねり"
+    },
+    {
+      "id": "volcano",
+      "name": "火山",
+      "icon": "🌋",
+      "priority": 2,
+      "pattern": "噴火|火山灰|噴石|火砕流|火山性地震"
+    },
+    {
+      "id": "heat",
+      "name": "猛暑・熱中症",
+      "icon": "☀️",
+      "priority": 2,
+      "pattern": "熱中症|猛暑|酷暑|熱波|危険な暑さ|熱中症警戒アラート"
+    },
+    {
+      "id": "lightning",
+      "name": "雷・落雷",
+      "icon": "⚡",
+      "priority": 2,
+      "pattern": "落雷|雷雨|雷撃|雷による停電"
+    },
+    {
+      "id": "dryness",
+      "name": "乾燥・渇水",
+      "icon": "🍂",
+      "priority": 1,
+      "pattern": "乾燥注意報|渇水|水不足|異常乾燥"
+    },
+    {
+      "id": "cold",
+      "name": "寒波",
+      "icon": "🥶",
+      "priority": 1,
+      "pattern": "寒波|厳寒|低温で|寒気流入|冷え込み"
+    },
+    {
+      "id": "climate",
+      "name": "異常気象",
+      "icon": "🌡️",
+      "priority": 1,
+      "pattern": "異常気象|記録的(な)?高温|過去最高気温|観測史上|記録更新"
+    }
+  ],
+  "exclude_pattern": "火災保険|地震保険|火災報知器の販売|ゲーム内|映画公開|ドラマ撮影|霜降り明星",
+  "important_pattern": "死者|死亡|行方不明|避難指示|緊急安全確保|特別警報|震度[６７67]|大津波警報|氾濫発生|住宅全焼|大規模|土砂災害警戒情報"
+}
