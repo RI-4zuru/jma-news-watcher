@@ -26,21 +26,7 @@ CATS = CFG['categories']
 CATS_REGEX = [(c, re.compile(c['pattern'], re.I)) for c in CATS]
 EXCLUDE = re.compile(CFG['exclude_pattern'], re.I)
 IMPORTANT = re.compile(CFG['important_pattern'], re.I)
-# Conservative headline-only geographic classifier.
-# A newspaper's publisher is NOT the incident location. Avoid ambiguous bare
-# place names such as 有田, 田辺, 新宮, 白浜, 橋本, 大津, 草津, 吉野.
-# City/town suffixes are necessary for such names: 佐賀県有田町 != 和歌山県有田市.
-AREA_PATTERNS = {
-    '近畿': r'近畿|関西',
-    '大阪': r'大阪(?=府|市|湾|[でのにへ、・\s]|$)|堺市|枚方市|豊中市|高槻市|吹田市|東大阪市|岸和田市|茨木市|寝屋川市|八尾市|泉佐野市',
-    '京都': r'(?<!東)京都(?=府|市|[でのにへ、・\s]|$)|宇治市|舞鶴市|福知山市|亀岡市|京丹後市|京田辺市|長岡京市|城陽市',
-    '兵庫': r'兵庫(?=県|[でのにへ、・\s]|$)|神戸市|姫路市|尼崎市|西宮市|宝塚市|明石市|淡路島|淡路市|豊岡市|加古川市|洲本市|南あわじ市',
-    '滋賀': r'滋賀(?=県|[でのにへ、・\s]|$)|大津市|彦根市|草津市|長浜市|近江八幡市|甲賀市|栗東市|守山市|野洲市|東近江市',
-    '奈良': r'奈良(?=県|市|[でのにへ、・\s]|$)|橿原市|生駒市|大和郡山市|天理市|五條市|桜井市|吉野町|葛城市',
-    '和歌山': r'和歌山(?=県|市|[でのにへ、・\s]|$)|(?<!京)田辺市|新宮市|白浜町|橋本市|有田市|有田川町|紀の川市|御坊市|海南市|岩出市|串本町',
-}
-AREA_REGEX = [(name, re.compile(pattern)) for name, pattern in AREA_PATTERNS.items()]
-
+from geography import extract_areas
 
 
 def read_old():
@@ -64,10 +50,6 @@ def normalize_title(title, source):
 def article_id(title, source):
     norm = re.sub(r'[\s\u3000\W_]+', '', title, flags=re.UNICODE).lower()
     return hashlib.sha256((norm + '|' + source.lower()).encode('utf-8')).hexdigest()[:20]
-
-
-def extract_areas(title):
-    return [name for name, regex in AREA_REGEX if regex.search(title)]
 
 
 def fetch_one(feed_query):

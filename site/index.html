@@ -1,192 +1,38 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b2233">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10364a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='3' y='49' font-size='49'%3E%E2%9B%85%3C/text%3E%3C/svg%3E">
 <title>気象・防災ニュース監視 | JMA News Watcher</title>
 <style>
-:root{color-scheme:light;--navy:#102b3c;--navy2:#17384c;--bg:#f2f5f7;--white:#fff;--text:#203743;--sub:#67808c;--line:#dfe7ea;--accent:#007f82;--accent2:#e5f3f2;--danger:#b43c39;--amber:#b26b13;--shadow:0 7px 25px rgba(28,64,74,.04)}
-*{box-sizing:border-box}html,body{margin:0}body{font:14px/1.6 -apple-system,BlinkMacSystemFont,"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #6bcbd0;outline-offset:2px}a{color:inherit;text-decoration:none}
-header{background:linear-gradient(114deg,#102b3c,#104552);color:#f7ffff}header .top{max-width:1540px;margin:auto;padding:22px 28px 17px;display:flex;justify-content:space-between;gap:18px;align-items:center}.brand{display:flex;align-items:center;gap:14px}.brandicon{width:47px;height:47px;display:flex;align-items:center;justify-content:center;font-size:26px;background:#ffffff14;border:1px solid #ffffff30;border-radius:13px}.suptitle{font-size:10px;letter-spacing:2.2px;color:#aad3d3;font-weight:800}.brand h1{margin:0;font-size:23px;line-height:1.25;letter-spacing:.3px}.brand p{margin:4px 0 0;color:#b8d0d6;font-size:12px}.topright{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.status{padding:7px 11px;border:1px solid #ffffff35;border-radius:9px;font-size:12px;color:#d3e7eb;background:#ffffff10}.status i{display:inline-block;background:#78d6ad;width:7px;height:7px;border-radius:50%;margin-right:7px}.status.warn i{background:#ffc76e}.headbtn{border:1px solid #ffffff50;background:#ffffff12;border-radius:9px;color:white;padding:7px 11px}.headbtn:hover{background:#ffffff22}
-.metrics{border-top:1px solid #ffffff1e;background:#07263748}.metrics-inner{max-width:1540px;padding:12px 28px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.metric{display:flex;gap:10px;align-items:baseline}.metric strong{font-size:25px;line-height:1.1;font-variant-numeric:tabular-nums}.metric span{font-size:12px;color:#b3ccd1}
-.layout{max-width:1540px;margin:22px auto 60px;padding:0 28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:19px}.sidebar,.panel{background:white;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.sidebar{padding:17px 12px;align-self:start;position:sticky;top:16px}.side-heading{display:flex;justify-content:space-between;align-items:center;padding:0 8px 11px}.side-heading h2{font-size:13px;margin:0;letter-spacing:.4px}.side-heading small{font-size:11px;color:var(--sub)}.catlist{display:flex;flex-direction:column;gap:3px}.cat{border:none;background:transparent;border-radius:8px;width:100%;padding:7px 10px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;color:#3e5965;font-size:13px}.cat:hover{background:#f3f6f7}.cat.active{color:#006e73;background:var(--accent2);font-weight:800}.cat .n{font-size:11px;color:#8499a3;background:#f2f5f6;padding:1px 7px;border-radius:20px;min-width:30px;text-align:center}.cat.active .n{color:#007a7c;background:white}.sidebar-note{border-top:1px solid var(--line);margin:13px 4px 0;padding:12px 7px 0;font-size:11px;color:var(--sub)}.sidebar-note b{display:block;color:#344e5b;margin-bottom:4px}
-.main{min-width:0}.filters{padding:15px 17px}.filter-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.searchbox{display:flex;align-items:center;border:1px solid #ccdadd;border-radius:9px;min-width:220px;flex:1;background:white;padding-left:12px}.searchbox span{color:#718a95}.searchbox input{border:0;outline:0;width:100%;padding:10px 9px;background:transparent;min-width:0}select{padding:9px 30px 9px 11px;border:1px solid #ccdadd;border-radius:9px;max-width:170px;color:#36505e;background:white}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.tab{padding:6px 11px;border:1px solid #dce5e8;background:#f7f9fa;border-radius:30px;font-size:12px;color:#5b7380}.tab.active{border-color:#acd5d1;background:#e3f5f1;color:#006e70;font-weight:800}.filter-right{margin-left:auto;display:flex;gap:8px}.smallbtn{background:white;border:1px solid #d6e1e4;color:#4c6672;border-radius:8px;padding:7px 11px;font-size:12px}.smallbtn:hover{background:#f1f7f7}.smallbtn.primary{background:var(--accent);border-color:var(--accent);color:white}.smallbtn.primary:hover{background:#006b6e}
-.results-head{display:flex;align-items:center;justify-content:space-between;margin:17px 2px 11px;gap:12px}.results-head h2{font-size:17px;margin:0}.results-head h2 span{font-size:13px;color:#81949d;font-weight:400;margin-left:8px}.results-head .tip{font-size:11px;color:#778d98;text-align:right}.articles{display:grid;gap:9px}.article{background:white;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:13px 17px 12px 16px;position:relative;overflow:hidden;transition:border-color .15s}.article:hover{border-color:#9dc5c7}.article::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#96b4bb}.article.priority3::before{background:#d6514d}.article.priority2::before{background:#e3a046}.article.is-read{opacity:.72}.article.is-read h3{font-weight:500}.art-main{display:flex;align-items:flex-start;gap:16px}.artbody{min-width:0;flex:1}.artmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.chip{font-size:10px;padding:2px 7px;border-radius:5px;background:#eff3f5;color:#4c6874;font-weight:700}.chip.danger{background:#fff0ed;color:#b14442}.chip.warning{background:#fff5e7;color:#9d671c}.chip.catname{background:#eaf5f4;color:#007476}.chip.new{color:#c83731;background:#ffedea}.article h3{font-size:15px;line-height:1.48;font-weight:800;margin:0 0 7px;overflow-wrap:anywhere}.article h3 a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.foot{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11px;color:#778f9a}.foot strong{color:#4b6470;font-weight:700}.foot .dot{color:#c0cdd2}.art-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}.iconbtn{border:1px solid #e0e8ea;border-radius:7px;background:#fff;color:#68818c;font-size:12px;min-width:68px;padding:5px 7px}.iconbtn:hover{background:#eef5f5}.iconbtn.saved{color:#b17a14;background:#fffaeb}.empty{background:white;border:1px dashed #cbdade;border-radius:13px;padding:52px 20px;text-align:center;color:#7b909b}.empty .glyph{font-size:32px}.empty h3{color:#3d5864;margin:9px 0 4px}.empty p{font-size:13px;max-width:570px;margin:0 auto}.footnotice{margin:17px 4px;font-size:11px;color:#8397a1;line-height:1.8}#loadMore{margin:15px auto 0;display:block;min-width:180px}.hide{display:none!important}.errorbar{border:1px solid #efd6aa;background:#fff8eb;color:#865c19;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px}.kbd{border:1px solid #d9e3e6;background:#f9fafb;border-radius:4px;padding:1px 4px}
-@media(max-width:850px){header .top{padding:16px;align-items:flex-start}.metrics-inner{padding:11px 16px;grid-template-columns:repeat(2,1fr);gap:10px}.layout{padding:0 13px;grid-template-columns:1fr;gap:12px;margin-top:12px}.sidebar{position:static;padding:12px}.catlist{flex-direction:row;flex-wrap:wrap}.cat{width:auto;border:1px solid #eef2f3;padding:5px 9px}.sidebar-note{display:none}.filters{padding:12px}.results-head .tip{display:none}}
-@media(max-width:550px){.brand h1{font-size:17px}.brandicon{width:36px;height:36px;font-size:21px}.brand p{font-size:11px}.topright{width:100%;justify-content:flex-start}.top{flex-wrap:wrap}.searchbox{width:100%;flex-basis:100%}.filter-row select{flex:1;max-width:none}.filter-right{width:100%;margin-left:0}.filter-right button{flex:1}.art-main{gap:5px;flex-direction:column}.art-actions{flex-direction:row}.article{padding:11px 13px}.article h3{font-size:14px}.metric strong{font-size:22px}}
-
-/* Settings: lightweight native dialog */
-.settings-dialog{width:min(490px,calc(100vw - 24px));max-height:90vh;overflow:auto;border:1px solid var(--line);border-radius:16px;padding:0;box-shadow:0 20px 70px #071c2f55;color:var(--text)}.settings-dialog::backdrop{background:#08192496}.settings-inner{padding:20px 22px}.settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.settings-heading h2{margin:0;font-size:19px}.close-settings{border:1px solid var(--line);background:white;border-radius:8px;padding:4px 10px;font-size:18px}.setting-row{display:flex;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid var(--line)}.setting-row input{width:19px;height:19px;accent-color:var(--accent);cursor:pointer}.setting-row strong{font-size:14px}.setting-help{font-size:12px;color:var(--sub);line-height:1.7;margin:7px 0 0}.setting-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.setting-status{font-size:12px;color:var(--sub);margin:10px 0}.miniinfo{font-size:11px;color:var(--sub);margin-top:20px}
+:root{color-scheme:light;--ink:#193844;--sub:#6b838d;--blue:#123547;--accent:#007b80;--line:#dbe5e8;--bg:#f3f6f8;--white:#fff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg)}button,select,input{font:inherit}button{cursor:pointer}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #70ccd1;outline-offset:2px}
+.top{background:linear-gradient(120deg,#102d41,#10505c);color:#fff;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.brand{display:flex;gap:10px;align-items:center}.logo{font-size:29px}.brand h1{margin:0;font-size:18px;line-height:1.35}.brand p{margin:2px 0 0;color:#bdd8dd;font-size:11px}.head-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.status{border:1px solid #ffffff44;color:#dff2f2;border-radius:8px;font-size:11px;padding:7px 9px}.headbtn{border:1px solid #ffffff55;color:#fff;background:#ffffff12;border-radius:8px;padding:7px 11px}.headbtn:hover{background:#ffffff25}
+.statline{display:flex;gap:24px;background:#e7eff1;border-bottom:1px solid #d4e3e7;padding:7px 23px;color:#587380;font-size:11px;flex-wrap:wrap}.statline b{color:#164757;font-size:15px;margin-right:5px}.shell{max-width:1900px;padding:12px 17px 40px;margin:auto}.toolbar,.panel,.notice{background:white;border:1px solid var(--line);border-radius:11px;box-shadow:0 4px 13px #25445008}.toolbar{padding:11px 13px}.toolbar-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.toolbar label{color:#516c78;font-weight:700;display:flex;align-items:center;gap:7px;white-space:nowrap}.toolbar select,.toolbar input{border:1px solid #cedde2;border-radius:7px;padding:7px 9px;background:white;color:#2f515f;max-width:195px}.toolbar input[type=search]{width:min(270px,30vw);max-width:none}.toolbar .spacer{flex:1}.smallbtn{border:1px solid #cedde2;background:#fff;border-radius:7px;padding:7px 10px;color:#3b6270;white-space:nowrap}.smallbtn:hover{background:#f2f8f9}.smallbtn.action{background:#007c81;color:white;border-color:#007c81}.smallbtn.action:hover{background:#006d71}.smallbtn:disabled{opacity:.5}.toolbar-row+.toolbar-row{margin-top:8px}.viewbtn{border:1px solid #d8e4e7;border-radius:7px;padding:5px 11px;background:#f9fbfc;color:#59717b}.viewbtn.active{border-color:#88c8c6;background:#e8f7f3;color:#006e75;font-weight:800}
+.notice{padding:10px 14px;margin-top:10px;color:#75510f;background:#fffaf0;border-color:#f1ddad;font-size:12px}.statusmsg{font-size:11px;color:#789099;margin:8px 2px}.grid{display:grid;grid-template-columns:repeat(var(--cols,1),minmax(0,1fr));gap:11px;margin-top:11px}.area-panel{display:flex;flex-direction:column;height:var(--panel-h,calc(100vh - 245px));min-height:310px;min-width:0;overflow:hidden}.area-head{padding:9px 11px;border-bottom:1px solid var(--line);background:#fbfdfd;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.area-head b{white-space:nowrap;font-size:12px;color:#005e69}.area-select{min-width:80px;max-width:205px;flex:1;border:1px solid #cedde2;padding:5px 7px;border-radius:6px;background:white;font-size:12px;color:#214d59}.area-count{font-size:11px;color:#6c838c;background:#eaf2f3;border-radius:30px;padding:3px 8px;white-space:nowrap}.popout{font-size:11px;color:#00777e;text-decoration:none;border:1px solid #cae1e0;background:white;padding:5px 8px;border-radius:6px;white-space:nowrap}.popout:hover{background:#e9f7f6}.area-body{overflow:auto;flex:1;min-height:0;padding:9px 9px 11px;background:#fafdfe}.news{background:white;border:1px solid #e0e8eb;border-left:3px solid #a3b9c1;border-radius:8px;padding:10px 11px;margin:0 0 7px;overflow-wrap:anywhere}.news.p3{border-left-color:#ce4c4c}.news.p2{border-left-color:#e0a146}.news.read{opacity:.65}.newstitle{font-size:13px;font-weight:750;line-height:1.46;color:#183c4d;text-decoration:none}.newstitle:hover{text-decoration:underline;color:#007d82}.newstags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px}.tag{font-size:10px;color:#497281;background:#eaf2f4;border-radius:4px;padding:1px 5px}.tag.urgent{color:#a42e29;background:#ffedec}.tag.justnew{color:#b73029;background:#ffefed}.tag.subject{background:#e8f5f2;color:#00767a}.meta{font-size:10px;color:#738b94;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.newsactions{display:flex;gap:8px;justify-content:flex-end;margin-top:3px}.newsactions button{font-size:10px;border:0;background:none;color:#65808a;padding:3px 4px}.newsactions button:hover{text-decoration:underline}.empty{margin:8px;padding:25px 12px;text-align:center;color:#68818b;background:white;border:1px dashed #d1e0e4;border-radius:9px;font-size:12px}.footnote{margin:10px 3px 0;color:#748991;font-size:11px;line-height:1.8}
+.settings-dialog{width:min(580px,calc(100vw - 18px));max-height:90vh;overflow:auto;border:1px solid #cadbdc;border-radius:13px;padding:0;box-shadow:0 20px 70px #0016266b}.settings-dialog::backdrop{background:#081c28a6}.settings-body{padding:17px 20px 19px}.settings-top{display:flex;justify-content:space-between;align-items:center}.settings-top h2{margin:0;font-size:18px}.settings-top button{background:white;border:1px solid var(--line);border-radius:7px;font-size:20px;width:32px;height:32px}.settings-body h3{font-size:13px;margin:17px 0 7px;padding-bottom:6px;border-bottom:1px solid var(--line)}.settings-body label{display:block;font-size:12px;font-weight:750;color:#395965;margin:8px 0}.settings-body select,.settings-body input[type=datetime-local]{border:1px solid #cddfe0;background:white;padding:8px 9px;border-radius:8px;max-width:100%;color:#234a56}.setting-toggle{display:flex!important;align-items:center;gap:10px}.setting-toggle input{width:18px;height:18px;accent-color:var(--accent)}.help{font-size:11px;color:#728892;margin:5px 0 11px}.region-tools{display:flex;gap:8px}.region-tools select{flex:1;min-width:0}.region-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.region-chip{display:inline-flex;gap:7px;align-items:center;border:1px solid #c5e2df;background:#effaf7;color:#125f63;border-radius:30px;padding:3px 7px;font-size:12px}.region-chip button{background:transparent;color:#205c63;border:0;font-size:17px;line-height:1.2}.setting-footer{display:flex;justify-content:flex-start;gap:10px;flex-wrap:wrap;margin:13px 0 0}.setting-status{font-size:12px;color:#647d88}
+@media(max-width:1150px){.grid{grid-template-columns:repeat(min(var(--cols),2),minmax(0,1fr))}.toolbar .spacer{flex-basis:100%}.area-panel{height:430px}}
+@media(max-width:670px){.top{padding:11px 13px}.statline{padding:7px 13px;gap:12px}.shell{padding:9px}.grid{grid-template-columns:1fr}.area-panel{height:460px}.toolbar input[type=search]{width:100%}.toolbar label{flex-wrap:wrap}.toolbar-row{gap:6px}.brand h1{font-size:16px}}
 </style>
 </head>
 <body>
-<header>
- <div class="top">
-  <div class="brand"><div class="brandicon">🌦️</div><div><div class="suptitle">WEATHER & DISASTER INTELLIGENCE</div><h1>気象・防災ニュース監視</h1><p>災害・現象別に全国ニュースを収集　｜　近畿地方の情報も素早く確認</p></div></div>
-  <div class="topright"><div id="status" class="status"><i></i><span id="updated">データ待機中</span></div><button id="browserNotify" class="headbtn" title="ページを開いている間のブラウザ通知">🔔 ブラウザ通知</button><button id="settingsButton" class="headbtn">⚙ 設定</button><button id="refresh" class="headbtn">↻ 表示更新</button></div>
- </div>
- <div class="metrics"><div class="metrics-inner"><div class="metric"><strong id="statAll">0</strong><span>保管中の記事</span></div><div class="metric"><strong id="statDay">0</strong><span>過去24時間</span></div><div class="metric"><strong id="statNew">0</strong><span>直近収集の新着</span></div><div class="metric"><strong id="statKinki">0</strong><span>近畿に関連</span></div></div></div>
-</header>
-<div class="layout">
- <aside class="sidebar"><div class="side-heading"><h2>カテゴリから探す</h2><small id="categoryCount"></small></div><div class="catlist" id="categories"></div><div class="sidebar-note"><b>対象ジャンル</b>火災、事故、黄砂、地震、津波、土砂・河川災害、突風、降雹、濃霧、霜のほか、大雨・雪・火山・猛暑などを広く検索します。</div></aside>
- <main class="main">
-  <section class="filters panel"><div class="filter-row"><label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="見出し・地域・報道機関を検索" aria-label="ニュース検索"></label><select id="area" aria-label="対象地域"><option value="all">全国すべて</option><option value="kinki">近畿6府県</option><option value="大阪">大阪</option><option value="京都">京都</option><option value="兵庫">兵庫</option><option value="滋賀">滋賀</option><option value="奈良">奈良</option><option value="和歌山">和歌山</option><option value="unknown">地域判定なし</option></select><select id="period" aria-label="期間"><option value="all">すべての期間</option><option value="24">過去24時間</option><option value="72">過去3日間</option><option value="168">過去7日間</option></select></div><div class="tabs"><button class="tab active" data-view="all">すべて</button><button class="tab" data-view="unread">未読</button><button class="tab" data-view="important">重要</button><button class="tab" data-view="new">直近の新着</button><button class="tab" data-view="saved">★ 保存済み</button><div class="filter-right"><button class="smallbtn" id="markVisible">表示分を既読</button><button class="smallbtn" id="export">CSV出力</button><button class="smallbtn primary" id="clearFilters">条件クリア</button></div></div></section>
-  <div id="warnings" role="status"></div>
-  <div class="results-head"><h2 id="currentTitle">最新ニュース <span id="resultCount"></span></h2><div class="tip">見出しを選択するとGoogleニュース経由で元記事を開きます</div></div>
-  <div id="articles" class="articles" aria-live="polite"></div><button id="loadMore" class="smallbtn hide">さらに50件表示</button>
-  <div class="footnotice">表示データは1分ごとに確認します。GitHubの収集は約5分ごと（遅延あり）。府県判定は見出しの地名をもとに行い、同名の地名は保守的に扱います。<br>※ 検索RSSの見出しをキーワードで自動分類しています。内容の正確性・網羅性は保証されません。日時は日本時間。地域は見出しによる簡易判定のため、地域名がない記事は「地域判定なし」になります。取得先はGoogleニュース経由です。公式の防災情報は必ず気象庁・自治体などの発表でも確認してください。</div>
- </main>
+<header class="top"><div class="brand"><div class="logo">🌦️</div><div><h1>気象・防災ニュース監視</h1><p>気象関連の報道を地域別に最大6画面で監視</p></div></div><div class="head-actions"><span id="status" class="status">データ待機中</span><button id="browserNotify" class="headbtn">🔔 ブラウザ通知</button><button id="settingsButton" class="headbtn">⚙ 設定・通知条件</button><button id="refresh" class="headbtn">↻ 更新</button></div></header>
+<div class="statline"><span><b id="statAll">0</b>保管記事</span><span><b id="statDay">0</b>過去24時間</span><span><b id="statNew">0</b>最新取得の新着</span><span><b id="statKinki">0</b>近畿関連記事</span></div>
+<div class="shell">
+ <section class="toolbar" aria-label="ニュース表示設定">
+  <div class="toolbar-row"><label>表示画面数 <select id="panelCount" aria-label="同時表示するエリア数"><option value="1">1エリア</option><option value="2">2エリア</option><option value="3">3エリア</option><option value="4">4エリア</option><option value="5">5エリア</option><option value="6">6エリア</option></select></label><label>分類 <select id="category"><option value="all">すべての分類</option></select></label><label>期間 <select id="period"><option value="all">すべて</option><option value="12">過去12時間</option><option value="24">過去24時間</option><option value="72">過去3日</option><option value="168">過去7日</option></select></label><label>検索 <input id="search" type="search" placeholder="見出し・媒体・地域を検索"></label><span class="spacer"></span><button class="smallbtn" id="export">CSV出力</button><button class="smallbtn" id="markRead">表示分を既読</button></div>
+  <div class="toolbar-row" id="viewTabs"><button class="viewbtn active" data-view="all">全記事</button><button class="viewbtn" data-view="unread">未読</button><button class="viewbtn" data-view="important">重要</button><button class="viewbtn" data-view="new">新着</button><button class="viewbtn" data-view="saved">★ 保存済み</button><span class="spacer"></span><button class="smallbtn" id="resetFilters">検索条件クリア</button></div>
+ </section>
+ <div id="warnings" aria-live="polite"></div>
+ <div class="grid" id="areaGrid" aria-label="地域別ニュース一覧"></div>
+ <p class="footnote">各エリアの地域は個別に変更・保存できます。「↗ 別画面」は選んだ地域のニュースだけを表示します。記事見出しをクリックすると配信元へのリンクを別タブで開きます。表示データを1分ごとに確認しますが、GitHubでの収集は約5分ごと（実行遅延あり）。地域は見出しからの推定で、すべての出来事を網羅しません。公式の防災情報は気象庁・自治体の発表で確認してください。</p>
 </div>
-
-<dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsHeading">
- <div class="settings-inner">
-  <div class="settings-heading"><h2 id="settingsHeading">⚙ 設定</h2><button type="button" id="closeSettings" class="close-settings" aria-label="設定を閉じる">×</button></div>
-  <label class="setting-row"><input id="popupEnabled" type="checkbox"><span><strong>新着を別ウィンドウで通知</strong><span style="display:block" class="setting-help">ONにすると専用の通知画面を開き、1分ごとに新着を確認します。</span></span></label>
-  <div class="setting-actions"><button id="openAlertWindow" class="smallbtn primary" type="button">通知ウィンドウを開く／開き直す</button></div>
-  <p id="popupStatus" role="status" class="setting-status">通知OFF</p>
-  <p class="setting-help">初回は通知用ウィンドウを手動で開く必要があります。ブラウザのポップアップブロックを許可してください。最前面への強制移動はブラウザ・OS側に制限されます。</p>
-  <p class="miniinfo">データ表示：1分ごとに確認 ／ GitHubのニュース収集：原則5分ごと（遅延あり）</p>
- </div>
-</dialog>
-<script src="./data.js"></script>
-<script>
-'use strict';
-const $=id=>document.getElementById(id);
-let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[],new_ids:[]};
-let selectedCat='all',selectedView='all',visibleLimit=50,currentVisible=[];
-const storeKey='jma-news-watcher-v1';
-let storage={read:[],saved:[],notificationBatch:'',popupEnabled:false};
-try{const saved=JSON.parse(localStorage.getItem(storeKey)||'{}');storage={...storage,...saved}}catch(e){}
-function persist(){try{localStorage.setItem(storeKey,JSON.stringify(storage))}catch(e){}}
-function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function fmtDate(d){const date=new Date(d);return Number.isNaN(+date)?'日時不明':new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(date)}
-function catFor(id){return (payload.categories||[]).find(c=>c.id===id)}
-function labelFor(a){return (a.categories||[]).map(catFor).filter(Boolean)}
-function isNew(a){return (payload.new_ids||[]).includes(a.id)}
-function isRead(a){return storage.read.includes(a.id)}
-function isSaved(a){return storage.saved.includes(a.id)}
-function setStatus(){
- const stamp=payload.generated_at;
- $('updated').textContent=stamp?`最終収集 ${fmtDate(stamp)}`:'まだ収集されていません';
- $('status').classList.toggle('warn',!stamp||(payload.success_feeds===0)||(payload.errors||[]).length>0);
- const arr=payload.items||[];const now=Date.now();
- $('statAll').textContent=arr.length.toLocaleString('ja-JP');
- $('statDay').textContent=arr.filter(a=>(now-new Date(a.published_at))<=86400000).length;
- $('statNew').textContent=(payload.new_ids||[]).length;
- $('statKinki').textContent=arr.filter(a=>(a.areas||[]).some(x=>['近畿','大阪','京都','兵庫','滋賀','奈良','和歌山'].includes(x))).length;
- let warnings='';
- if(!stamp)warnings='<div class="errorbar">まだニュースが収集されていません。ローカル版は <b>update.cmd</b> を実行してください。GitHub版はActionsの初回実行を確認してください。</div>';
- else if((payload.errors||[]).length)warnings=`<div class="errorbar">⚠ 一部のニュース取得に失敗しました（${payload.errors.length}/${payload.total_feeds} 件の検索）。取得済みの記事は引き続き表示しています。<details><summary>失敗した検索を見る</summary>${(payload.errors||[]).map(x=>esc(x)).join(' / ')}</details></div>`;
- $('warnings').innerHTML=warnings;
-}
-function drawCats(){
- const items=payload.items||[];
- let html=`<button class="cat ${selectedCat==='all'?'active':''}" data-cat="all"><span>📋 すべての分類</span><span class="n">${items.length}</span></button>`;
- for(const c of payload.categories||[]){const count=items.filter(a=>(a.categories||[]).includes(c.id)).length;
- html+=`<button class="cat ${selectedCat===c.id?'active':''}" data-cat="${esc(c.id)}"><span>${esc(c.icon)} ${esc(c.name)}</span><span class="n">${count}</span></button>`}
- $('categories').innerHTML=html;
- $('categoryCount').textContent=`${(payload.categories||[]).length}分類`;
-}
-function getFiltered(){
- const area=$('area').value,period=$('period').value,q=$('search').value.toLowerCase().trim();
- return (payload.items||[]).filter(a=>{
-  if(selectedCat!=='all'&&!(a.categories||[]).includes(selectedCat))return false;
-  if(area==='kinki'&&!(a.areas||[]).some(x=>['近畿','大阪','京都','兵庫','滋賀','奈良','和歌山'].includes(x)))return false;
-  if(area==='unknown'&&(a.areas||[]).length)return false;
-  if(!['all','kinki','unknown'].includes(area)&&!(a.areas||[]).includes(area))return false;
-  if(period!=='all'&&(Date.now()-new Date(a.published_at).getTime())>Number(period)*3600000)return false;
-  if(selectedView==='unread'&&isRead(a))return false;
-  if(selectedView==='saved'&&!isSaved(a))return false;
-  if(selectedView==='important'&&Number(a.priority)<3)return false;
-  if(selectedView==='new'&&!isNew(a))return false;
-  if(q&&!([a.title,a.source,...(a.areas||[]),...labelFor(a).map(c=>c.name)].join(' ').toLowerCase().includes(q)))return false;
-  return true;
- }).sort((a,b)=>new Date(b.published_at)-new Date(a.published_at));
-}
-function render(){
- setStatus();drawCats();
- document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===selectedView));
- const list=getFiltered();currentVisible=list.slice(0,visibleLimit);$('resultCount').textContent=`${list.length}件`;
- const category=catFor(selectedCat);$('currentTitle').firstChild.textContent=category?category.icon+' '+category.name:'最新ニュース ';
- if(!list.length){$('articles').innerHTML=`<div class="empty"><div class="glyph">${(payload.items||[]).length?'🔎':'🗞️'}</div><h3>${(payload.items||[]).length?'条件に合うニュースはありません':'表示できるニュースがありません'}</h3><p>${(payload.items||[]).length?'検索語や地域・期間の指定を変えてみてください。':'初回収集後、見出しがここに表示されます。分類条件に該当する記事が存在しない場合もあります。'}</p></div>`}
- else $('articles').innerHTML=currentVisible.map(a=>{
-  const cats=labelFor(a).slice(0,4).map(c=>`<span class="chip catname">${esc(c.icon)} ${esc(c.name)}</span>`).join('');
-  const level=a.priority>=3?'<span class="chip danger">重要</span>':a.priority===2?'<span class="chip warning">注目</span>':'';
-  return `<article class="article priority${a.priority} ${isRead(a)?'is-read':''}" data-id="${esc(a.id)}"><div class="art-main"><div class="artbody"><div class="artmeta">${level}${isNew(a)?'<span class="chip new">NEW</span>':''}${cats}</div><h3><a class="article-link" data-id="${esc(a.id)}" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)} ↗</a></h3><div class="foot"><strong>${esc(a.source)}</strong><span class="dot">·</span><span>${fmtDate(a.published_at)}</span><span class="dot">·</span><span>${(a.areas||[]).length?esc(a.areas.join('・')):'地域判定なし'}</span></div></div><div class="art-actions"><button class="iconbtn ${isSaved(a)?'saved':''}" data-act="save" data-id="${esc(a.id)}">${isSaved(a)?'★ 保存中':'☆ 保存'}</button><button class="iconbtn" data-act="read" data-id="${esc(a.id)}">${isRead(a)?'未読に戻す':'既読にする'}</button></div></div></article>`
- }).join('');
- $('loadMore').classList.toggle('hide',list.length<=visibleLimit);
-}
-function toggleId(key,id,value){const set=new Set(storage[key]);if(value)set.add(id);else set.delete(id);storage[key]=Array.from(set).slice(-4000);persist();render()}
-$('categories').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedCat=b.dataset.cat;visibleLimit=50;render()});
-$('articles').addEventListener('click',e=>{
- const act=e.target.closest('[data-act]');if(act){const id=act.dataset.id;toggleId(act.dataset.act==='save'?'saved':'read',id,act.dataset.act==='save'?!storage.saved.includes(id):!storage.read.includes(id));return}
- const link=e.target.closest('a.article-link');if(link){if(!storage.read.includes(link.dataset.id)){storage.read.push(link.dataset.id);persist();setTimeout(render,120)}}
-});
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{selectedView=b.dataset.view;visibleLimit=50;render()}));
-['search','area','period'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',()=>{visibleLimit=50;render()}));
-$('clearFilters').addEventListener('click',()=>{selectedCat='all';selectedView='all';$('area').value='all';$('period').value='all';$('search').value='';visibleLimit=50;render()});
-$('markVisible').addEventListener('click',()=>{storage.read=Array.from(new Set([...storage.read,...currentVisible.map(a=>a.id)]));persist();render()});
-$('loadMore').addEventListener('click',()=>{visibleLimit+=50;render()});
-$('export').addEventListener('click',()=>{
- const csvCell=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
- const rows=[['公開日時(JST)','分類','重要度','地域(簡易判定)','見出し','媒体','GoogleニュースURL'],...getFiltered().map(a=>[fmtDate(a.published_at),labelFor(a).map(c=>c.name).join('・'),a.priority,(a.areas||[]).join('・'),a.title,a.source,a.url])];
- const content='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');const blob=new Blob([content],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),el=document.createElement('a');el.href=url;el.download='weather_news_'+new Date().toISOString().slice(0,10)+'.csv';el.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-});
-// New window must be opened by a user gesture. Reuse a named window to avoid spam.
-let alertPopup=null;
-function popupIsOpen(){try{return !!alertPopup&&!alertPopup.closed}catch(e){return false}}
-function updatePopupControls(){
- $('popupEnabled').checked=!!storage.popupEnabled;
- $('popupStatus').textContent=!storage.popupEnabled?'通知OFF':popupIsOpen()?'通知ON・専用ウィンドウを監視中':'通知ON・専用ウィンドウを開いてください';
-}
-function openAlertPopup(){
- if(!storage.popupEnabled){storage.popupEnabled=true;persist()}
- // When popup blocker suppresses window.open, the old window is not replaced.
- try{alertPopup=window.open('./alerts.html','jma-news-alerts','popup,width=570,height=640,resizable=yes,scrollbars=yes');
-  if(alertPopup){alertPopup.focus()}else{$('popupStatus').textContent='ポップアップがブロックされました。サイトのポップアップを許可し、再度ボタンを押してください。'}
- }catch(e){$('popupStatus').textContent='通知画面を開けませんでした。ポップアップの許可設定を確認してください。'}
- if(popupIsOpen())updatePopupControls();
-}
-$('settingsButton').addEventListener('click',()=>{$('settingsDialog').showModal();updatePopupControls()});
-$('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
-$('settingsDialog').addEventListener('click',e=>{if(e.target===$('settingsDialog'))$('settingsDialog').close()});
-$('popupEnabled').addEventListener('change',e=>{
- storage.popupEnabled=e.target.checked;persist();
- if(storage.popupEnabled)openAlertPopup();
- else {if(popupIsOpen())alertPopup.close();alertPopup=null;updatePopupControls()}
-});
-$('openAlertWindow').addEventListener('click',openAlertPopup);
-$('browserNotify').addEventListener('click',async()=>{
- if(!('Notification' in window)){alert('このブラウザでは通知を利用できません。Telegram通知をご利用ください。');return}
- try{const p=await Notification.requestPermission();if(p==='granted'){alert('ブラウザ通知を許可しました。ページを開いている間、新着を通知します。')}else alert('通知が許可されませんでした。ブラウザやWindowsの通知設定を確認してください。')}
- catch(e){alert('この環境では通知を有効にできません。Telegram通知をご利用ください。')}
-});
-let knownIds=new Set((payload.items||[]).map(a=>a.id)),hasBaseline=!!payload.generated_at;
-function handleFetched(next){
- const nextItems=next.items||[];
- const incoming=hasBaseline?nextItems.filter(a=>!knownIds.has(a.id)):[];
- knownIds=new Set(nextItems.map(a=>a.id));
- hasBaseline=!!next.generated_at||hasBaseline;
- payload=next;render();
- if(incoming.length&&'Notification' in window&&Notification.permission==='granted'){
-  try{new Notification(`気象・防災ニュース：新着${incoming.length}件`,{body:incoming.slice(0,2).map(a=>a.title).join(' / ').slice(0,200),tag:'jma-news-updates'})}catch(e){}
- }
-}
-let inFlight=false;
-function reloadData(){
- if(inFlight)return;inFlight=true;
- const s=document.createElement('script');s.src='./data.js?v='+Date.now();
- s.onload=()=>{inFlight=false;handleFetched(window.NEWS_PAYLOAD||payload);s.remove()};
- s.onerror=()=>{inFlight=false;const m=$('warnings');m.innerHTML='<div class="errorbar">ニュースデータを読み込めません。ファイルの配置や通信状態を確認してください。</div>';s.remove()};
- document.head.appendChild(s)
-}
-$('refresh').addEventListener('click',reloadData);
-window.addEventListener('storage',()=>{try{storage={...storage,...JSON.parse(localStorage.getItem(storeKey)||'{}')};updatePopupControls()}catch(e){}});
-render();updatePopupControls();
-// Poll the published data, not the upstream RSS. Independent popup polls too.
-setInterval(reloadData,60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)reloadData()});
-</script>
-</body>
-</html>
+<dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsHeading"><div class="settings-body"><div class="settings-top"><h2 id="settingsHeading">⚙ 設定・新着通知</h2><button type="button" id="closeSettings" aria-label="閉じる">×</button></div>
+ <h3>通知ウィンドウ</h3><label class="setting-toggle"><input type="checkbox" id="popupEnabled">新着があれば別ウィンドウで知らせる</label><p class="help">通知専用画面は1分ごとに新着を確認。初回はボタンで開く必要があります。ブラウザの制約で最前面表示を保証することはできません。</p>
+ <h3>通知対象地域（複数選択可）</h3><div class="region-tools"><span id="notifyRegionSelectHolder" style="flex:1;min-width:0"></span><button type="button" id="addNotifyRegion" class="smallbtn">＋ 地域を追加</button></div><div class="region-chips" id="notifyRegionChips"></div>
+ <h3>通知対象の記事公開日時</h3><label for="notifySince">この日時以降の記事（日本時間・JST）</label><input id="notifySince" type="datetime-local" step="60"><p class="help">たとえば「2026/10/14 09:00」なら、その時刻以降に公開された記事だけが対象です。収集済みの対象記事も通知画面に一覧表示します。保管期間は通常7日間です。</p>
+ <div class="setting-footer"><button type="button" class="smallbtn action" id="openAlertWindow">🔔 通知ウィンドウを開く</button><button type="button" class="smallbtn" id="closeDialog">設定を閉じる</button></div><p id="popupStatus" class="setting-status" role="status"></p>
+ </div></dialog>
+<script src="./regions.js"></script><script src="./common.js"></script><script src="./data.js"></script><script src="./app.js"></script>
+</body></html>

@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $cfg = Get-Content -LiteralPath (Join-Path $root 'config.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$geo = Get-Content -LiteralPath (Join-Path $root 'regions.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $storePath = Join-Path $root 'store\news.json'
 $site = Join-Path $root 'site'
 $now = [DateTimeOffset]::UtcNow
@@ -25,19 +26,44 @@ function MakeId([string]$title, [string]$source) {
   } finally { $sha.Dispose() }
 }
 function Areas([string]$headline) {
-  # Use only headline evidence; do not infer a prefecture from a publisher's name.
-  # Ambiguous bare places (有田, 田辺, 橋本, etc.) require a municipality suffix.
-  $patterns = [ordered]@{
-    '近畿'='近畿|関西'
-    '大阪'='大阪(?=府|市|湾|[でのにへ、・\s]|$)|堺市|枚方市|豊中市|高槻市|吹田市|東大阪市|岸和田市|茨木市|寝屋川市|八尾市|泉佐野市'
-    '京都'='(?<!東)京都(?=府|市|[でのにへ、・\s]|$)|宇治市|舞鶴市|福知山市|亀岡市|京丹後市|京田辺市|長岡京市|城陽市'
-    '兵庫'='兵庫(?=県|[でのにへ、・\s]|$)|神戸市|姫路市|尼崎市|西宮市|宝塚市|明石市|淡路島|淡路市|豊岡市|加古川市|洲本市|南あわじ市'
-    '滋賀'='滋賀(?=県|[でのにへ、・\s]|$)|大津市|彦根市|草津市|長浜市|近江八幡市|甲賀市|栗東市|守山市|野洲市|東近江市'
-    '奈良'='奈良(?=県|市|[でのにへ、・\s]|$)|橿原市|生駒市|大和郡山市|天理市|五條市|桜井市|吉野町|葛城市'
-    '和歌山'='和歌山(?=県|市|[でのにへ、・\s]|$)|(?<!京)田辺市|新宮市|白浜町|橋本市|有田市|有田川町|紀の川市|御坊市|海南市|岩出市|串本町'
-  }
+  # The collector always classifies only the headline; never the publisher.
   $out = @()
-  foreach ($key in $patterns.Keys) { if ([regex]::IsMatch($headline, $patterns[$key])) { $out += $key } }
+  foreach ($name in @($geo.prefectures)) {
+    $pref = [string]$name
+    if ($pref -eq '北海道') { $suffix = '' }
+    elseif ($pref -eq '東京') { $suffix = '都' }
+    elseif ($pref -in @('大阪', '京都')) { $suffix = '府' }
+    else { $suffix = '県' }
+    $escaped = [regex]::Escape($pref)
+    $boundary = ''
+    if ($pref -eq '京都') { $boundary = '(?<!東)' }
+    $official = [regex]::Escape($pref + $suffix)
+    $pat = '(?:' + $official + '|' + $boundary + $escaped + '(?=$|[\s　、。・：:「」（）()でのにはがをへも、]))'
+    $match = [regex]::IsMatch($headline, $pat)
+    if (-not $match) {
+      $cities = @($geo.cities.PSObject.Properties[$pref].Value)
+      foreach ($cityName in $cities) {
+        $city = [string]$cityName
+        $cityPat = [regex]::Escape($city)
+        if ($pref -eq '和歌山' -and $city -eq '田辺市') { $cityPat = '(?<!京)田辺市' }
+        if ($pref -eq '三重' -and $city -eq '津市') { $cityPat = '(?<![大唐沼焼中宮魚草])津市' }
+        if ([regex]::IsMatch($headline, $cityPat)) { $match = $true; break }
+      }
+    }
+    if ($match) { $out += $pref }
+  }
+  $groups = [ordered]@{
+    '近畿地方' = '近畿|関西'; '北海道地方' = '北海道地方'
+    '東北地方' = '東北(?:地方)?'; '関東地方' = '関東(?:地方)?'
+    '甲信越地方' = '甲信越(?:地方)?'; '北陸地方' = '北陸(?:地方)?'
+    '東海地方' = '東海(?:地方)?'; '中国地方' = '中国地方|山陰|山陽'
+    '四国地方' = '四国(?:地方)?'; '九州地方' = '九州(?:地方)?'
+    '沖縄地方' = '沖縄地方'
+  }
+  foreach ($region in $groups.Keys) {
+    if ([regex]::IsMatch($headline, [string]$groups[$region])) { $out += $region }
+  }
+  if ([regex]::IsMatch($headline, '全国(?:各地|的|規模|で|に|の|へ|は|一斉|各県|都道府県|$)')) { $out += '全国' }
   return ,$out
 }
 
