@@ -26,15 +26,21 @@ CATS = CFG['categories']
 CATS_REGEX = [(c, re.compile(c['pattern'], re.I)) for c in CATS]
 EXCLUDE = re.compile(CFG['exclude_pattern'], re.I)
 IMPORTANT = re.compile(CFG['important_pattern'], re.I)
-AREAS = {
+# Conservative headline-only geographic classifier.
+# A newspaper's publisher is NOT the incident location. Avoid ambiguous bare
+# place names such as 有田, 田辺, 新宮, 白浜, 橋本, 大津, 草津, 吉野.
+# City/town suffixes are necessary for such names: 佐賀県有田町 != 和歌山県有田市.
+AREA_PATTERNS = {
     '近畿': r'近畿|関西',
-    '大阪': r'大阪|枚方|堺市|豊中|高槻|吹田|東大阪|岸和田',
-    '京都': r'京都|宇治|舞鶴|福知山|亀岡|京丹後',
-    '兵庫': r'兵庫|神戸|姫路|尼崎|西宮|宝塚|明石|淡路|豊岡',
-    '滋賀': r'滋賀|大津|彦根|草津|長浜|近江八幡',
-    '奈良': r'奈良|橿原|生駒|大和郡山|天理|吉野',
-    '和歌山': r'和歌山|田辺|新宮|白浜|橋本|有田'
+    '大阪': r'大阪(?=府|市|湾|[でのにへ、・\s]|$)|堺市|枚方市|豊中市|高槻市|吹田市|東大阪市|岸和田市|茨木市|寝屋川市|八尾市|泉佐野市',
+    '京都': r'(?<!東)京都(?=府|市|[でのにへ、・\s]|$)|宇治市|舞鶴市|福知山市|亀岡市|京丹後市|京田辺市|長岡京市|城陽市',
+    '兵庫': r'兵庫(?=県|[でのにへ、・\s]|$)|神戸市|姫路市|尼崎市|西宮市|宝塚市|明石市|淡路島|淡路市|豊岡市|加古川市|洲本市|南あわじ市',
+    '滋賀': r'滋賀(?=県|[でのにへ、・\s]|$)|大津市|彦根市|草津市|長浜市|近江八幡市|甲賀市|栗東市|守山市|野洲市|東近江市',
+    '奈良': r'奈良(?=県|市|[でのにへ、・\s]|$)|橿原市|生駒市|大和郡山市|天理市|五條市|桜井市|吉野町|葛城市',
+    '和歌山': r'和歌山(?=県|市|[でのにへ、・\s]|$)|(?<!京)田辺市|新宮市|白浜町|橋本市|有田市|有田川町|紀の川市|御坊市|海南市|岩出市|串本町',
 }
+AREA_REGEX = [(name, re.compile(pattern)) for name, pattern in AREA_PATTERNS.items()]
+
 
 
 def read_old():
@@ -61,7 +67,7 @@ def article_id(title, source):
 
 
 def extract_areas(title):
-    return [name for name, pat in AREAS.items() if re.search(pat, title)]
+    return [name for name, regex in AREA_REGEX if regex.search(title)]
 
 
 def fetch_one(feed_query):
@@ -157,6 +163,9 @@ def main():
     old = read_old()
     first_run = old is None or old.get('baseline_ready') is False
     prior = {x['id']: x for x in old['items']} if old else {}
+    # Reassess saved headlines after improvements to location detection.
+    for article in prior.values():
+        article['areas'] = extract_areas(article.get('title', ''))
     gathered = []
     errors = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
@@ -177,7 +186,8 @@ def main():
         if article['id'] in combined:
             existing = combined[article['id']]
             article['categories'] = sorted(set(existing['categories']) | set(article['categories']))
-            article['areas'] = sorted(set(existing.get('areas', [])) | set(article['areas']))
+            # Never preserve a previous false-positive area assignment.
+            article['areas'] = extract_areas(article['title'])
             article['priority'] = max(existing['priority'], article['priority'])
             if existing['published_at'] < article['published_at']:
                 article['published_at'] = existing['published_at']

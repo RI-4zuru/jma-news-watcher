@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>新着通知 | 気象・防災ニュース</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f1f5f7;color:#163645;font:14px/1.55 -apple-system,BlinkMacSystemFont,"Yu Gothic",Meiryo,sans-serif}header{background:#102f41;color:white;padding:19px 21px}header h1{font-size:18px;margin:0 0 4px}header p{margin:0;font-size:12px;color:#bbd3dc}.top{padding:16px 20px;background:white;border-bottom:1px solid #dce4e9;display:flex;align-items:center;justify-content:space-between;gap:14px}.count{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:#006f76}.pulse{animation:blink 1s steps(2,end) 6}@keyframes blink{to{color:#e54642}}.pill{border-radius:99px;background:#eaf3f5;color:#355b68;font-size:12px;padding:6px 10px}.on{background:#e0f4ec;color:#06734f}.off{background:#ffe8e7;color:#ad3c37}.help{color:#627d89;padding:13px 20px 6px;font-size:12px}.articles{padding:8px 13px 30px}.article{background:#fff;padding:13px 15px;margin-bottom:10px;border:1px solid #dae4e8;border-left:4px solid #009199;border-radius:10px;overflow-wrap:anywhere}.article.important{border-left-color:#df4848}.article a{color:#133d57;font-weight:700;text-decoration:none;font-size:14px}.article a:hover{text-decoration:underline}.meta{color:#607d8a;font-size:11px;margin-top:7px}.empty{background:white;border:1px dashed #d4e2e5;margin:12px 13px;padding:24px 15px;text-align:center;border-radius:10px;color:#698390}.muted{font-size:11px;color:#668391}.buttons{padding:0 20px 16px;display:flex;justify-content:flex-end}.buttons button{border:1px solid #b7cdd1;border-radius:7px;padding:7px 12px;background:#fff;color:#416773;cursor:pointer}
+</style>
+</head>
+<body>
+<header><h1>🔔 気象・防災ニュース 新着通知</h1><p>このウィンドウを開いたままにすると新着を1分ごとに確認します。</p></header>
+<div class="top"><div><div id="count" class="count">0件</div><span class="muted" id="lastCheck">待機中</span></div><span id="state" class="pill on">監視中</span></div>
+<div class="help" id="help">次の新着から表示します（すでに掲載されているニュースは通知しません）。</div>
+<div class="buttons"><button id="clear" type="button">表示をクリア</button></div>
+<main id="articles" class="articles"><div class="empty">新着ニュースを待っています。</div></main>
+<script src="./data.js"></script>
+<script>
+'use strict';
+const STORAGE_KEY='jma-news-watcher-v1';
+const $=id=>document.getElementById(id);
+let knownIds=new Set((window.NEWS_PAYLOAD?.items||[]).map(a=>a.id));
+let baseline=!!window.NEWS_PAYLOAD?.generated_at, inFlight=false, queue=[], alertedIds=new Set();
+function isEnabled(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}').popupEnabled===true}catch(e){return false}}
+function fmtDate(s){try{return new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(s))}catch(e){return s}}
+function updateStatus(){const enabled=isEnabled();$('state').textContent=enabled?'監視中':'通知OFF';$('state').className='pill '+(enabled?'on':'off');$('lastCheck').textContent='最終確認 '+fmtDate(new Date().toISOString());}
+function paint(){
+ $('count').textContent=queue.length+'件';const container=$('articles');container.replaceChildren();
+ if(!queue.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='新着ニュースを待っています。';container.appendChild(empty);return}
+ for(const a of queue){
+  const article=document.createElement('article');article.className='article'+(a.priority>=3?' important':'');
+  const link=document.createElement('a');link.href=a.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=a.title+' ↗';
+  const meta=document.createElement('div');meta.className='meta';meta.textContent=(a.source||'')+' ・ '+fmtDate(a.published_at)+' ・ '+(a.areas||[]).join('・');
+  article.append(link,meta);container.appendChild(article);
+ }
+}
+function receive(next){
+ const incoming=baseline?(next.items||[]).filter(a=>!knownIds.has(a.id)):[];
+ knownIds=new Set((next.items||[]).map(a=>a.id));baseline=!!next.generated_at||baseline;
+ if(incoming.length&&isEnabled()){
+  for(const a of incoming){if(!alertedIds.has(a.id)){queue.unshift(a);alertedIds.add(a.id)}}
+  queue=queue.slice(0,100);paint();$('help').textContent='新着を検知しました。見出しをクリックすると記事を開けます。';
+  $('count').classList.remove('pulse');void $('count').offsetWidth;$('count').classList.add('pulse');
+  document.title='🔴 新着'+incoming.length+'件 | 気象・防災ニュース';
+  try{window.focus()}catch(e){}
+ }
+ updateStatus();
+}
+function poll(){
+ if(inFlight)return;
+ inFlight=true;const s=document.createElement('script');s.src='./data.js?v='+Date.now();
+ s.onload=()=>{inFlight=false;receive(window.NEWS_PAYLOAD||{items:[]});s.remove()};
+ s.onerror=()=>{inFlight=false;$('state').textContent='取得失敗';$('state').className='pill off';s.remove()};
+ document.head.appendChild(s);
+}
+$('clear').addEventListener('click',()=>{queue=[];paint();document.title='新着通知 | 気象・防災ニュース'});
+window.addEventListener('storage',()=>updateStatus());
+paint();updateStatus();setInterval(poll,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});
+</script>
+</body>
+</html>

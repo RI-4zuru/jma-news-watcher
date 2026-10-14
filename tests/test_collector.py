@@ -69,3 +69,44 @@ class TestCollector(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TestAreaClassifier(unittest.TestCase):
+    def test_ambiguous_place_names_do_not_force_wakayama(self):
+        cases = [
+            ('佐賀県有田町で山林火災', []),
+            ('佐賀県有田町で落雷', []),
+            ('和歌山県有田市で山林火災', ['和歌山']),
+            ('和歌山県有田川町で洪水', ['和歌山']),
+            ('新宮町で火災', []),  # 福岡県にも存在する
+            ('新宮市で大雨', ['和歌山']),
+            ('橋本で地震', []),  # 人名か地名か区別できない
+            ('橋本市で大雨', ['和歌山']),
+            ('京田辺市で霜害', ['京都']),
+            ('田辺市で豪雨', ['和歌山']),
+            ('東京都で震度3', []),  # 「東京都」を「京都」と誤認しない
+            ('京都府で地震', ['京都']),
+            ('群馬県草津町で降雪', []),
+            ('滋賀県草津市で降雪', ['滋賀']),
+            ('大阪市で住宅火災', ['大阪']),
+            ('近畿地方で黄砂が観測', ['近畿']),
+        ]
+        for title, expected in cases:
+            with self.subTest(title=title):
+                self.assertEqual(collect.extract_areas(title), expected)
+
+    def test_new_classifier_overwrites_previous_wrong_area(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            db = root / 'store' / 'news.json'
+            db.parent.mkdir(parents=True)
+            record = {'id': 'oldid', 'title': '佐賀県有田町で山林火災',
+                      'source': '佐賀新聞', 'url': 'https://news.google.com/rss/articles/test',
+                      'published_at': collect.NOW.isoformat(), 'categories':['forestfire'],
+                      'priority':2, 'areas':['和歌山']}
+            db.write_text(json.dumps({'items':[record], 'baseline_ready':True}))
+            with patch.object(collect, 'STORE', db), patch.object(collect, 'SITE', root / 'site'), \
+                 patch.object(collect.urllib.request, 'urlopen', side_effect=OSError('offline')), \
+                 patch.object(collect, 'telegram_send'):
+                collect.main()
+                actual = json.loads(db.read_text())
+                self.assertEqual(actual['items'][0]['areas'], [])

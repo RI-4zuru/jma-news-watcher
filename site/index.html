@@ -15,13 +15,16 @@ header{background:linear-gradient(114deg,#102b3c,#104552);color:#f7ffff}header .
 .results-head{display:flex;align-items:center;justify-content:space-between;margin:17px 2px 11px;gap:12px}.results-head h2{font-size:17px;margin:0}.results-head h2 span{font-size:13px;color:#81949d;font-weight:400;margin-left:8px}.results-head .tip{font-size:11px;color:#778d98;text-align:right}.articles{display:grid;gap:9px}.article{background:white;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:13px 17px 12px 16px;position:relative;overflow:hidden;transition:border-color .15s}.article:hover{border-color:#9dc5c7}.article::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#96b4bb}.article.priority3::before{background:#d6514d}.article.priority2::before{background:#e3a046}.article.is-read{opacity:.72}.article.is-read h3{font-weight:500}.art-main{display:flex;align-items:flex-start;gap:16px}.artbody{min-width:0;flex:1}.artmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.chip{font-size:10px;padding:2px 7px;border-radius:5px;background:#eff3f5;color:#4c6874;font-weight:700}.chip.danger{background:#fff0ed;color:#b14442}.chip.warning{background:#fff5e7;color:#9d671c}.chip.catname{background:#eaf5f4;color:#007476}.chip.new{color:#c83731;background:#ffedea}.article h3{font-size:15px;line-height:1.48;font-weight:800;margin:0 0 7px;overflow-wrap:anywhere}.article h3 a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.foot{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11px;color:#778f9a}.foot strong{color:#4b6470;font-weight:700}.foot .dot{color:#c0cdd2}.art-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}.iconbtn{border:1px solid #e0e8ea;border-radius:7px;background:#fff;color:#68818c;font-size:12px;min-width:68px;padding:5px 7px}.iconbtn:hover{background:#eef5f5}.iconbtn.saved{color:#b17a14;background:#fffaeb}.empty{background:white;border:1px dashed #cbdade;border-radius:13px;padding:52px 20px;text-align:center;color:#7b909b}.empty .glyph{font-size:32px}.empty h3{color:#3d5864;margin:9px 0 4px}.empty p{font-size:13px;max-width:570px;margin:0 auto}.footnotice{margin:17px 4px;font-size:11px;color:#8397a1;line-height:1.8}#loadMore{margin:15px auto 0;display:block;min-width:180px}.hide{display:none!important}.errorbar{border:1px solid #efd6aa;background:#fff8eb;color:#865c19;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px}.kbd{border:1px solid #d9e3e6;background:#f9fafb;border-radius:4px;padding:1px 4px}
 @media(max-width:850px){header .top{padding:16px;align-items:flex-start}.metrics-inner{padding:11px 16px;grid-template-columns:repeat(2,1fr);gap:10px}.layout{padding:0 13px;grid-template-columns:1fr;gap:12px;margin-top:12px}.sidebar{position:static;padding:12px}.catlist{flex-direction:row;flex-wrap:wrap}.cat{width:auto;border:1px solid #eef2f3;padding:5px 9px}.sidebar-note{display:none}.filters{padding:12px}.results-head .tip{display:none}}
 @media(max-width:550px){.brand h1{font-size:17px}.brandicon{width:36px;height:36px;font-size:21px}.brand p{font-size:11px}.topright{width:100%;justify-content:flex-start}.top{flex-wrap:wrap}.searchbox{width:100%;flex-basis:100%}.filter-row select{flex:1;max-width:none}.filter-right{width:100%;margin-left:0}.filter-right button{flex:1}.art-main{gap:5px;flex-direction:column}.art-actions{flex-direction:row}.article{padding:11px 13px}.article h3{font-size:14px}.metric strong{font-size:22px}}
+
+/* Settings: lightweight native dialog */
+.settings-dialog{width:min(490px,calc(100vw - 24px));max-height:90vh;overflow:auto;border:1px solid var(--line);border-radius:16px;padding:0;box-shadow:0 20px 70px #071c2f55;color:var(--text)}.settings-dialog::backdrop{background:#08192496}.settings-inner{padding:20px 22px}.settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.settings-heading h2{margin:0;font-size:19px}.close-settings{border:1px solid var(--line);background:white;border-radius:8px;padding:4px 10px;font-size:18px}.setting-row{display:flex;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid var(--line)}.setting-row input{width:19px;height:19px;accent-color:var(--accent);cursor:pointer}.setting-row strong{font-size:14px}.setting-help{font-size:12px;color:var(--sub);line-height:1.7;margin:7px 0 0}.setting-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.setting-status{font-size:12px;color:var(--sub);margin:10px 0}.miniinfo{font-size:11px;color:var(--sub);margin-top:20px}
 </style>
 </head>
 <body>
 <header>
  <div class="top">
   <div class="brand"><div class="brandicon">🌦️</div><div><div class="suptitle">WEATHER & DISASTER INTELLIGENCE</div><h1>気象・防災ニュース監視</h1><p>災害・現象別に全国ニュースを収集　｜　近畿地方の情報も素早く確認</p></div></div>
-  <div class="topright"><div id="status" class="status"><i></i><span id="updated">データ待機中</span></div><button id="browserNotify" class="headbtn" title="ページを開いている間のブラウザ通知">🔔 ブラウザ通知</button><button id="refresh" class="headbtn">↻ 表示更新</button></div>
+  <div class="topright"><div id="status" class="status"><i></i><span id="updated">データ待機中</span></div><button id="browserNotify" class="headbtn" title="ページを開いている間のブラウザ通知">🔔 ブラウザ通知</button><button id="settingsButton" class="headbtn">⚙ 設定</button><button id="refresh" class="headbtn">↻ 表示更新</button></div>
  </div>
  <div class="metrics"><div class="metrics-inner"><div class="metric"><strong id="statAll">0</strong><span>保管中の記事</span></div><div class="metric"><strong id="statDay">0</strong><span>過去24時間</span></div><div class="metric"><strong id="statNew">0</strong><span>直近収集の新着</span></div><div class="metric"><strong id="statKinki">0</strong><span>近畿に関連</span></div></div></div>
 </header>
@@ -32,9 +35,20 @@ header{background:linear-gradient(114deg,#102b3c,#104552);color:#f7ffff}header .
   <div id="warnings" role="status"></div>
   <div class="results-head"><h2 id="currentTitle">最新ニュース <span id="resultCount"></span></h2><div class="tip">見出しを選択するとGoogleニュース経由で元記事を開きます</div></div>
   <div id="articles" class="articles" aria-live="polite"></div><button id="loadMore" class="smallbtn hide">さらに50件表示</button>
-  <div class="footnotice">※ 検索RSSの見出しをキーワードで自動分類しています。内容の正確性・網羅性は保証されません。日時は日本時間。地域は見出しによる簡易判定のため、地域名がない記事は「地域判定なし」になります。取得先はGoogleニュース経由です。公式の防災情報は必ず気象庁・自治体などの発表でも確認してください。</div>
+  <div class="footnotice">表示データは1分ごとに確認します。GitHubの収集は約5分ごと（遅延あり）。府県判定は見出しの地名をもとに行い、同名の地名は保守的に扱います。<br>※ 検索RSSの見出しをキーワードで自動分類しています。内容の正確性・網羅性は保証されません。日時は日本時間。地域は見出しによる簡易判定のため、地域名がない記事は「地域判定なし」になります。取得先はGoogleニュース経由です。公式の防災情報は必ず気象庁・自治体などの発表でも確認してください。</div>
  </main>
 </div>
+
+<dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsHeading">
+ <div class="settings-inner">
+  <div class="settings-heading"><h2 id="settingsHeading">⚙ 設定</h2><button type="button" id="closeSettings" class="close-settings" aria-label="設定を閉じる">×</button></div>
+  <label class="setting-row"><input id="popupEnabled" type="checkbox"><span><strong>新着を別ウィンドウで通知</strong><span style="display:block" class="setting-help">ONにすると専用の通知画面を開き、1分ごとに新着を確認します。</span></span></label>
+  <div class="setting-actions"><button id="openAlertWindow" class="smallbtn primary" type="button">通知ウィンドウを開く／開き直す</button></div>
+  <p id="popupStatus" role="status" class="setting-status">通知OFF</p>
+  <p class="setting-help">初回は通知用ウィンドウを手動で開く必要があります。ブラウザのポップアップブロックを許可してください。最前面への強制移動はブラウザ・OS側に制限されます。</p>
+  <p class="miniinfo">データ表示：1分ごとに確認 ／ GitHubのニュース収集：原則5分ごと（遅延あり）</p>
+ </div>
+</dialog>
 <script src="./data.js"></script>
 <script>
 'use strict';
@@ -42,7 +56,7 @@ const $=id=>document.getElementById(id);
 let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[],new_ids:[]};
 let selectedCat='all',selectedView='all',visibleLimit=50,currentVisible=[];
 const storeKey='jma-news-watcher-v1';
-let storage={read:[],saved:[],notificationBatch:''};
+let storage={read:[],saved:[],notificationBatch:'',popupEnabled:false};
 try{const saved=JSON.parse(localStorage.getItem(storeKey)||'{}');storage={...storage,...saved}}catch(e){}
 function persist(){try{localStorage.setItem(storeKey,JSON.stringify(storage))}catch(e){}}
 function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -60,7 +74,7 @@ function setStatus(){
  $('statAll').textContent=arr.length.toLocaleString('ja-JP');
  $('statDay').textContent=arr.filter(a=>(now-new Date(a.published_at))<=86400000).length;
  $('statNew').textContent=(payload.new_ids||[]).length;
- $('statKinki').textContent=arr.filter(a=>(a.areas||[]).length>0).length;
+ $('statKinki').textContent=arr.filter(a=>(a.areas||[]).some(x=>['近畿','大阪','京都','兵庫','滋賀','奈良','和歌山'].includes(x))).length;
  let warnings='';
  if(!stamp)warnings='<div class="errorbar">まだニュースが収集されていません。ローカル版は <b>update.cmd</b> を実行してください。GitHub版はActionsの初回実行を確認してください。</div>';
  else if((payload.errors||[]).length)warnings=`<div class="errorbar">⚠ 一部のニュース取得に失敗しました（${payload.errors.length}/${payload.total_feeds} 件の検索）。取得済みの記事は引き続き表示しています。<details><summary>失敗した検索を見る</summary>${(payload.errors||[]).map(x=>esc(x)).join(' / ')}</details></div>`;
@@ -78,7 +92,7 @@ function getFiltered(){
  const area=$('area').value,period=$('period').value,q=$('search').value.toLowerCase().trim();
  return (payload.items||[]).filter(a=>{
   if(selectedCat!=='all'&&!(a.categories||[]).includes(selectedCat))return false;
-  if(area==='kinki'&&!(a.areas||[]).length)return false;
+  if(area==='kinki'&&!(a.areas||[]).some(x=>['近畿','大阪','京都','兵庫','滋賀','奈良','和歌山'].includes(x)))return false;
   if(area==='unknown'&&(a.areas||[]).length)return false;
   if(!['all','kinki','unknown'].includes(area)&&!(a.areas||[]).includes(area))return false;
   if(period!=='all'&&(Date.now()-new Date(a.published_at).getTime())>Number(period)*3600000)return false;
@@ -119,22 +133,60 @@ $('export').addEventListener('click',()=>{
  const rows=[['公開日時(JST)','分類','重要度','地域(簡易判定)','見出し','媒体','GoogleニュースURL'],...getFiltered().map(a=>[fmtDate(a.published_at),labelFor(a).map(c=>c.name).join('・'),a.priority,(a.areas||[]).join('・'),a.title,a.source,a.url])];
  const content='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');const blob=new Blob([content],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),el=document.createElement('a');el.href=url;el.download='weather_news_'+new Date().toISOString().slice(0,10)+'.csv';el.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+// New window must be opened by a user gesture. Reuse a named window to avoid spam.
+let alertPopup=null;
+function popupIsOpen(){try{return !!alertPopup&&!alertPopup.closed}catch(e){return false}}
+function updatePopupControls(){
+ $('popupEnabled').checked=!!storage.popupEnabled;
+ $('popupStatus').textContent=!storage.popupEnabled?'通知OFF':popupIsOpen()?'通知ON・専用ウィンドウを監視中':'通知ON・専用ウィンドウを開いてください';
+}
+function openAlertPopup(){
+ if(!storage.popupEnabled){storage.popupEnabled=true;persist()}
+ // When popup blocker suppresses window.open, the old window is not replaced.
+ try{alertPopup=window.open('./alerts.html','jma-news-alerts','popup,width=570,height=640,resizable=yes,scrollbars=yes');
+  if(alertPopup){alertPopup.focus()}else{$('popupStatus').textContent='ポップアップがブロックされました。サイトのポップアップを許可し、再度ボタンを押してください。'}
+ }catch(e){$('popupStatus').textContent='通知画面を開けませんでした。ポップアップの許可設定を確認してください。'}
+ if(popupIsOpen())updatePopupControls();
+}
+$('settingsButton').addEventListener('click',()=>{$('settingsDialog').showModal();updatePopupControls()});
+$('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
+$('settingsDialog').addEventListener('click',e=>{if(e.target===$('settingsDialog'))$('settingsDialog').close()});
+$('popupEnabled').addEventListener('change',e=>{
+ storage.popupEnabled=e.target.checked;persist();
+ if(storage.popupEnabled)openAlertPopup();
+ else {if(popupIsOpen())alertPopup.close();alertPopup=null;updatePopupControls()}
+});
+$('openAlertWindow').addEventListener('click',openAlertPopup);
 $('browserNotify').addEventListener('click',async()=>{
  if(!('Notification' in window)){alert('このブラウザでは通知を利用できません。Telegram通知をご利用ください。');return}
- try{const p=await Notification.requestPermission();if(p==='granted'){alert('ブラウザ通知を許可しました。ページを開いている間、新着収集時に通知します。');storage.notificationBatch=payload.generated_at||'';persist()}else alert('通知が許可されませんでした。ブラウザやWindowsの通知設定を確認してください。')}
+ try{const p=await Notification.requestPermission();if(p==='granted'){alert('ブラウザ通知を許可しました。ページを開いている間、新着を通知します。')}else alert('通知が許可されませんでした。ブラウザやWindowsの通知設定を確認してください。')}
  catch(e){alert('この環境では通知を有効にできません。Telegram通知をご利用ください。')}
 });
-function notifyOnNewBatch(){
- if(!payload.generated_at||payload.generated_at===storage.notificationBatch)return;
- const first=storage.notificationBatch==='';storage.notificationBatch=payload.generated_at;persist();
- if(first||!('Notification' in window)||Notification.permission!=='granted')return;
- const ids=new Set(payload.new_ids||[]),items=(payload.items||[]).filter(a=>ids.has(a.id));
- if(items.length){try{new Notification(`気象・防災ニュース：新着${items.length}件`,{body:items.slice(0,2).map(a=>a.title).join(' / ').slice(0,200),tag:'jma-news-updates'})}catch(e){}}
+let knownIds=new Set((payload.items||[]).map(a=>a.id)),hasBaseline=!!payload.generated_at;
+function handleFetched(next){
+ const nextItems=next.items||[];
+ const incoming=hasBaseline?nextItems.filter(a=>!knownIds.has(a.id)):[];
+ knownIds=new Set(nextItems.map(a=>a.id));
+ hasBaseline=!!next.generated_at||hasBaseline;
+ payload=next;render();
+ if(incoming.length&&'Notification' in window&&Notification.permission==='granted'){
+  try{new Notification(`気象・防災ニュース：新着${incoming.length}件`,{body:incoming.slice(0,2).map(a=>a.title).join(' / ').slice(0,200),tag:'jma-news-updates'})}catch(e){}
+ }
 }
 let inFlight=false;
-function reloadData(){if(inFlight)return;inFlight=true;const s=document.createElement('script');s.src='./data.js?v='+Date.now();s.onload=()=>{payload=window.NEWS_PAYLOAD||payload;inFlight=false;render();notifyOnNewBatch();s.remove()};s.onerror=()=>{inFlight=false;const m=$('warnings');m.innerHTML='<div class="errorbar">ニュースデータを読み込めません。ファイルの配置や通信状態を確認してください。</div>';s.remove()};document.head.appendChild(s)}
+function reloadData(){
+ if(inFlight)return;inFlight=true;
+ const s=document.createElement('script');s.src='./data.js?v='+Date.now();
+ s.onload=()=>{inFlight=false;handleFetched(window.NEWS_PAYLOAD||payload);s.remove()};
+ s.onerror=()=>{inFlight=false;const m=$('warnings');m.innerHTML='<div class="errorbar">ニュースデータを読み込めません。ファイルの配置や通信状態を確認してください。</div>';s.remove()};
+ document.head.appendChild(s)
+}
 $('refresh').addEventListener('click',reloadData);
-render();notifyOnNewBatch();setInterval(reloadData,120000);
+window.addEventListener('storage',()=>{try{storage={...storage,...JSON.parse(localStorage.getItem(storeKey)||'{}')};updatePopupControls()}catch(e){}});
+render();updatePopupControls();
+// Poll the published data, not the upstream RSS. Independent popup polls too.
+setInterval(reloadData,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)reloadData()});
 </script>
 </body>
 </html>
