@@ -66,6 +66,10 @@ def fetch_one(feed_query):
         title = (node.findtext('title') or '').strip()
         url = (node.findtext('link') or '').strip()
         source = (node.findtext('source') or '').strip()
+        source_node = node.find('source')
+        source_url = (source_node.get('url') or '').strip() if source_node is not None else ''
+        if not source_url.startswith('https://'):
+            source_url = ''
         pub = (node.findtext('pubDate') or '').strip()
         if not title or not url or not url.startswith('https://news.google.com/'):
             continue
@@ -89,7 +93,8 @@ def fetch_one(feed_query):
             priority = 3
         records.append({
             'id': article_id(title, source), 'title': title, 'url': url,
-            'source': source or '配信元不明', 'published_at': published.isoformat().replace('+00:00', 'Z'),
+            'source': source or '配信元不明', 'source_url': source_url,
+            'published_at': published.isoformat().replace('+00:00', 'Z'),
             'categories': categories, 'priority': priority,
             'areas': extract_areas(title),
         })

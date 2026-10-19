@@ -1,11 +1,8 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>新着通知 | 気象・防災ニュース</title><style>
-*{box-sizing:border-box}body{margin:0;background:#f3f7f8;color:#183c4b;font:13px/1.55 -apple-system,BlinkMacSystemFont,"Yu Gothic",Meiryo,sans-serif}header{background:#113649;color:white;padding:16px 17px}header h1{font-size:18px;margin:0}header p{font-size:11px;color:#bed6de;margin:4px 0 0}.status{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 15px;background:white;border-bottom:1px solid #d9e4e8}.number{font-size:22px;color:#08767c;font-weight:800}.pill{font-size:11px;border-radius:30px;background:#e1f4ec;color:#007354;padding:5px 10px}.pill.off{background:#ffefed;color:#a94240}.info{padding:10px 15px;background:#e9f0f2;color:#486675;font-size:11px;line-height:1.8}.info b{color:#174b5a}.actions{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;gap:9px}.actions a{color:#007379}.actions button{background:white;border:1px solid #cbdee1;border-radius:7px;padding:6px 10px;color:#3f616c;cursor:pointer}.articles{padding:0 12px 24px}.news{padding:11px 12px;margin:7px 0;border:1px solid #dce6e9;border-left:4px solid #90b1ba;border-radius:8px;background:#fff}.news.new{border-left-color:#d94b48}.news a{color:#163d50;text-decoration:none;font-weight:800}.news a:hover{text-decoration:underline}.meta{font-size:11px;color:#77909a;margin-top:5px}.flag{font-size:10px;color:#c22f2b;background:#ffedeb;border-radius:4px;padding:2px 6px;margin-right:6px}.empty{border:1px dashed #cbdde1;background:white;border-radius:9px;padding:24px;text-align:center;color:#6d858d}.pulse{animation:pulse .65s 8 alternate}@keyframes pulse{to{color:#d8423c}}
-</style></head><body>
-<header><h1>🔔 地域別・新着ニュース通知</h1><p>選んだ地域と日時に該当する記事を表示。1分間隔で新着を確認します。</p></header>
-<div class="status"><div><span class="number" id="count">0件</span><span id="lastCheck" class="meta">待機中</span></div><span class="pill" id="state">監視中</span></div>
-<div class="info" id="scope">対象地域：近畿地方　／　通知開始日時：設定中…</div>
-<div class="actions"><a href="./index.html" target="_blank" rel="noopener">↗ ニュース一覧を開く</a><button id="clear" type="button">今回の新着表示を解除</button></div>
-<main class="articles" id="articles"><div class="empty">新着を確認中です。</div></main>
+<!doctype html><html lang="ja" data-theme="system" data-density="compact"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#142b3f"><title>新着通知 | 気象・防災ニュース</title><link rel="stylesheet" href="./styles.css"></head><body class="alert-body">
+<header class="alert-head"><div><h1>🔔 新着ニュース通知</h1><p>60秒ごとに確認 · 地域と公開日時は設定で指定</p></div><a href="./index.html" target="_blank" rel="noopener">↗ 一覧を開く</a></header>
+<div class="alert-overview"><span class="alert-count" id="count">0件</span><span class="alert-pill" id="state">監視中</span><span class="alert-last" id="lastCheck">待機中</span></div>
+<div class="alert-scope" id="scope">対象地域を読み込んでいます…</div>
+<div class="alert-actions"><span class="description">新着に該当する記事は赤い線で表示</span><button class="smallbtn" id="clear" type="button">表示をクリア</button></div>
+<main class="alert-list" id="articles"><div class="empty">確認中…</div></main>
 <script src="./regions.js"></script><script src="./common.js"></script><script src="./data.js"></script><script src="./alerts.js"></script>
 </body></html>

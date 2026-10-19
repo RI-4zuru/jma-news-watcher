@@ -1,146 +1,153 @@
+/* Compact dashboard for JMA News Watcher v4. */
 'use strict';
 (() => {
- const $=id=>document.getElementById(id), J=window.JMA;
- let payload=window.NEWS_PAYLOAD||{items:[],new_ids:[],categories:[],errors:[]};
- let settings=J.loadSettings(), view='all', inFlight=false, alertWindow=null;
- const urlParams=new URLSearchParams(location.search);
- const single=urlParams.get('single')==='1';
- let singleRegion=urlParams.get('region');
+ const $=id=>document.getElementById(id),J=window.JMA;
+ let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[]};
+ let settings=J.loadSettings(),view='all',busy=false,alertWindow=null;
+ const params=new URLSearchParams(location.search),single=params.get('single')==='1';
+ let singleRegion=params.get('region');
  if(!['all','nationwide','unknown',...J.geo.prefectures,...J.geo.groups.map(g=>g.id)].includes(singleRegion))singleRegion='近畿地方';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const items=()=>payload.items||[];
- const isNew=a=>(payload.new_ids||[]).includes(a.id);
- const isRead=a=>settings.read.includes(a.id);
- const isSaved=a=>settings.saved.includes(a.id);
- function stamp(){
-  $('status').textContent=payload.generated_at?'最終収集 '+J.formatDate(payload.generated_at):'データ待機中';
-  $('statAll').textContent=items().length;
-  $('statDay').textContent=items().filter(a=>Date.now()-J.timestamp(a)<86400000).length;
-  $('statNew').textContent=(payload.new_ids||[]).length;
-  $('statKinki').textContent=items().filter(a=>J.matchesRegion(a,'近畿地方')).length;
-  let msg='';if(!payload.generated_at)msg='初回収集を待っています。GitHub版は「Actions」の収集ワークフローを実行してください。';
-  else if((payload.errors||[]).length)msg=`一部のRSS取得に失敗しました（${payload.errors.length}件）。取得済みの記事を表示しています。`;
-  $('warnings').innerHTML=msg?`<div class="notice">⚠ ${esc(msg)}</div>`:'';
- }
- function filterBase(){
-  const q=$('search').value.trim().toLowerCase(), cat=$('category').value, period=$('period').value;
+ const saved=a=>settings.saved.includes(a.id);
+ const filtered=()=>{
+  const category=$('category').value,period=$('period').value,query=$('search').value.trim().toLocaleLowerCase();
   return items().filter(a=>{
-   if(cat!=='all'&&!(a.categories||[]).includes(cat))return false;
+   if(!J.matchesSource(a,settings))return false;
+   if(category!=='all'&&!(a.categories||[]).includes(category))return false;
    if(period!=='all'&&Date.now()-J.timestamp(a)>Number(period)*3600000)return false;
    if(view==='important'&&Number(a.priority)<3)return false;
-   if(view==='new'&&!isNew(a))return false;
-   if(view==='unread'&&isRead(a))return false;
-   if(view==='saved'&&!isSaved(a))return false;
-   if(q&&!([a.title,a.source,...(a.areas||[])].join(' ').toLowerCase().includes(q)))return false;
+   if(view==='new'&&!J.isNew(a))return false;
+   if(view==='saved'&&!saved(a))return false;
+   if(query&&!([a.title,a.source,...(a.areas||[])].join(' ').toLocaleLowerCase().includes(query)))return false;
    return true;
   }).sort((a,b)=>J.timestamp(b)-J.timestamp(a));
+ };
+ function renderStatus(){
+  $('statAll').textContent=items().length;
+  $('statDay').textContent=items().filter(J.isNew).length;
+  $('status').textContent=payload.generated_at?'取得 '+J.formatDate(payload.generated_at):'初回収集待機中';
+  $('sourceStatus').textContent=settings.sourceMode==='all'?'全配信元':settings.sourceMode==='major'?'主要メディアのみ':'指定メディアのみ';
+  $('openAlertWindow').classList.toggle('on',settings.popupEnabled);
+  let warning='';
+  if(!payload.generated_at)warning='まだ収集データがありません。GitHub Actionsの初回収集を実行してください。';
+  else if((payload.errors||[]).length)warning=`一部のRSS取得に失敗しました（${payload.errors.length}件）。取得済みの記事を表示中です。`;
+  const e=$('warnings');e.replaceChildren();if(warning){const n=document.createElement('div');n.className='warning';n.textContent='⚠ '+warning;e.appendChild(n)}
  }
- function regionValue(index){return single?singleRegion:settings.panelRegions[index]}
- function filteredPanel(index){const r=regionValue(index);return filterBase().filter(a=>J.matchesRegion(a,r))}
- function articleHtml(a){
-  const cats=(a.categories||[]).slice(0,2).map(id=>(payload.categories||[]).find(c=>c.id===id)).filter(Boolean);
-  const tags=cats.map(c=>`<span class="tag subject">${esc(c.icon)} ${esc(c.name)}</span>`).join('');
-  const level=a.priority>=3?'<span class="tag urgent">重要</span>':'';
-  return `<article class="news p${Number(a.priority)||1} ${isRead(a)?'read':''}"><div class="newstags">${isNew(a)?'<span class="tag justnew">NEW</span>':''}${level}${tags}</div><a class="newstitle" data-action="article" data-id="${esc(a.id)}" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)} ↗</a><div class="meta"><span>${esc(a.source)}</span><span>・${J.formatDate(a.published_at)}</span><span>・${esc((a.areas||[]).join('、')||'地域不明')}</span></div><div class="newsactions"><button type="button" data-action="save" data-id="${esc(a.id)}">${isSaved(a)?'★ 保存済み':'☆ 保存'}</button><button type="button" data-action="read" data-id="${esc(a.id)}">${isRead(a)?'未読に戻す':'既読にする'}</button></div></article>`;
+ function renderCategories(){
+  const select=$('category'),old=select.value;select.replaceChildren(new Option('すべての分類','all'));
+  for(const c of payload.categories||[])select.add(new Option(`${c.icon} ${c.name}`,c.id));
+  if([...select.options].some(o=>o.value===old))select.value=old;
  }
- function rebuildCategory(){
-  const v=$('category').value,sel=$('category');sel.replaceChildren(new Option('すべての分類','all'));
-  for(const c of payload.categories||[])sel.add(new Option(`${c.icon} ${c.name}`,c.id));
-  if([...sel.options].some(x=>x.value===v))sel.value=v;
+ function story(a){
+  const c=(payload.categories||[]).find(x=>(a.categories||[]).includes(x.id));
+  const level=Number(a.priority)||1,flag=J.isNew(a)?'<span class="flag flag-new">NEW</span>':'';
+  const priority=level>=3?'<span class="flag flag-urgent">重要</span>':'';
+  const source=a.source||'配信元不明';
+  const date=J.formatDate(a.published_at);
+  return `<article class="story priority${level}" data-id="${esc(a.id)}">
+   <div class="story-meta"><time class="story-date">${esc(date)}</time><span class="story-source" title="${esc(source)}">${esc(source)}</span>${c?`<span class="story-category" title="${esc(c.name)}">${esc(c.icon)} ${esc(c.name)}</span>`:''}${flag}${priority}</div>
+   <div class="story-main"><a class="story-title" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)} ↗</a><button class="bookmark ${saved(a)?'saved':''}" type="button" data-action="bookmark" data-id="${esc(a.id)}" title="${saved(a)?'保存を解除':'記事を保存'}" aria-label="${saved(a)?'保存を解除':'記事を保存'}">${saved(a)?'★':'☆'}</button></div>
+   </article>`;
  }
  function draw(){
-  stamp();
-  $('panelCount').value=String(single?1:settings.panelCount);
-  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const number=single?1:settings.panelCount;
-  const cols=number<=3?number:number===4?2:3;
-  const rows=Math.ceil(number/cols);
-  const grid=$('areaGrid');grid.style.setProperty('--cols',cols);grid.style.setProperty('--panel-h',rows>1?'max(330px,calc((100vh - 240px)/2))':'max(420px,calc(100vh - 250px))');
-  const previous=[...grid.querySelectorAll('.area-body')].map(x=>x.scrollTop);
-  grid.replaceChildren();
-  for(let i=0;i<number;i++){
-   const r=regionValue(i),list=filteredPanel(i),section=document.createElement('section');section.className='panel area-panel';
-   section.setAttribute('aria-label','ニュース '+J.regionName(r));section.innerHTML=`<div class="area-head"><b>エリア ${i+1}</b><span class="region-select-holder"></span><span class="area-count">${list.length}件</span><a class="popout" target="_blank" rel="noopener" href="${esc('index.html?single=1&region='+encodeURIComponent(r))}" title="このエリアを独立した画面で表示">↗ 別画面</a></div><div class="area-body">${list.length?list.slice(0,100).map(articleHtml).join(''):'<div class="empty">この地域・条件に該当する記事はありません。<br>地域を変更するか「全て」を選択してください。</div>'}${list.length>100?'<div class="empty">表示は上位100件までです。期間や分類で絞り込んでください。</div>':''}</div>`;
-   const sel=J.makeOptions(r);sel.className='area-select';sel.setAttribute('aria-label',`エリア${i+1}の対象地域`);
-   sel.addEventListener('change',()=>{
-    if(single){singleRegion=sel.value;const params=new URLSearchParams({single:'1',region:singleRegion});history.replaceState(null,'','?'+params)}
-    else{settings.panelRegions[i]=sel.value;J.saveSettings(settings)}
-    draw();
-   });
-   section.querySelector('.region-select-holder').replaceWith(sel);
-   grid.appendChild(section);
-   section.querySelector('.area-body').scrollTop=previous[i]||0;
+  J.applyTheme(settings);renderStatus();
+  document.querySelectorAll('[data-view]').forEach(x=>{const active=x.dataset.view===view;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))});
+  const n=single?1:settings.panelCount,cols=n<=3?n:n===4?2:3,rows=Math.ceil(n/cols);
+  const grid=$('areaGrid');grid.style.setProperty('--cols',cols);
+  grid.style.setProperty('--panel-h',rows===1?'calc(100dvh - 125px)':'max(280px,calc((100dvh - 147px)/2))');
+  const positions=[...grid.querySelectorAll('.area-body')].map(e=>e.scrollTop);
+  const base=filtered();grid.replaceChildren();
+  for(let i=0;i<n;i++){
+   const r=single?singleRegion:settings.panelRegions[i];
+   const matches=base.filter(a=>J.matchesRegion(a,r));
+   const section=document.createElement('section');section.className='area-panel';section.setAttribute('aria-label','エリア'+(i+1)+' '+J.regionName(r));
+   const url='./index.html?single=1&region='+encodeURIComponent(r);
+   section.innerHTML=`<div class="area-head"><span class="area-index">${String(i+1).padStart(2,'0')}</span><span class="area-name" title="${esc(J.regionName(r))}">${esc(J.regionName(r))}</span><span class="area-count">${matches.length}件</span><a class="popout" href="${esc(single?'./index.html':url)}" target="${single?'_self':'_blank'}" rel="noopener" aria-label="${single?'全エリアに戻る':J.regionName(r)+'を別ウィンドウで表示'}">${single?'← 戻る':'↗ 別画面'}</a></div><div class="area-body">${matches.length?matches.slice(0,150).map(story).join(''):`<div class="empty">この地域・条件に合う記事はありません。<small>${settings.sourceMode==='selected'?'配信元の選択も確認してください。':'設定から地域を変更できます。'}</small></div>`}${matches.length>150?'<div class="empty">150件まで表示。期間・分類で絞り込んでください。</div>':''}</div>`;
+   grid.appendChild(section);section.querySelector('.area-body').scrollTop=positions[i]||0;
   }
  }
- function toggleId(key,id){const set=new Set(settings[key]);set.has(id)?set.delete(id):set.add(id);settings[key]=[...set].slice(-4000);J.saveSettings(settings);draw()}
+ function persist(){J.saveSettings(settings);draw()}
  $('areaGrid').addEventListener('click',e=>{
-  const control=e.target.closest('[data-action]');if(!control)return;
-  const {action,id}=control.dataset;
-  if(action==='read'||action==='save'){toggleId(action==='read'?'read':'saved',id)}
-  else if(action==='article'&&!settings.read.includes(id)){settings.read.push(id);J.saveSettings(settings);setTimeout(draw,100)}
+  const b=e.target.closest('[data-action="bookmark"]');if(!b)return;
+  const id=b.dataset.id,ids=new Set(settings.saved);ids.has(id)?ids.delete(id):ids.add(id);settings.saved=[...ids].slice(-4000);persist();
  });
- $('panelCount').addEventListener('change',e=>{settings.panelCount=Number(e.target.value);J.saveSettings(settings);draw()});
- if(single){$('panelCount').disabled=true;const btn=document.createElement('a');btn.className='smallbtn';btn.href='./index.html';btn.textContent='← 全エリア画面に戻る';$('panelCount').after(btn)}
- $('search').addEventListener('input',draw);$('category').addEventListener('change',draw);$('period').addEventListener('change',draw);
- $('viewTabs').addEventListener('click',e=>{const tab=e.target.closest('[data-view]');if(tab){view=tab.dataset.view;draw()}});
- $('resetFilters').addEventListener('click',()=>{$('search').value='';$('category').value='all';$('period').value='all';view='all';draw()});
- $('markRead').addEventListener('click',()=>{settings.read=[...new Set([...settings.read,...Array.from({length:single?1:settings.panelCount},(_,i)=>filteredPanel(i)).flat().map(a=>a.id)])].slice(-4000);J.saveSettings(settings);draw()});
- $('export').addEventListener('click',()=>{
-  const seen=new Map();for(let i=0;i<(single?1:settings.panelCount);i++)for(const a of filteredPanel(i))seen.set(a.id,a);
-  const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const rows=[['公開日時(JST)','見出し','報道機関','地域','分類','URL'],...[...seen.values()].map(a=>[J.formatDate(a.published_at),a.title,a.source,(a.areas||[]).join('・'),(a.categories||[]).join('・'),a.url])];
-  const blob=new Blob(['\uFEFF'+rows.map(r=>r.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='jma-news-'+new Date().toISOString().slice(0,10)+'.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
- });
- // Notification settings are independent of the dashboard region selection.
- const picker=J.makeOptions('近畿地方',{includeUnknown:true});picker.id='notifyRegionSelect';picker.setAttribute('aria-label','追加する通知地域');picker.style.width='100%';
- $('notifyRegionSelectHolder').appendChild(picker);
- function renderNotifySettings(){
-  $('popupEnabled').checked=!!settings.popupEnabled;$('notifySince').value=settings.notifySince;
-  const group=$('notifyRegionChips');group.replaceChildren();
-  for(const r of settings.notifyRegions){const chip=document.createElement('span');chip.className='region-chip';
-   const name=document.createElement('span');name.textContent=J.regionName(r);
-   const b=document.createElement('button');b.textContent='×';b.title=r+'を通知対象から外す';b.setAttribute('aria-label',b.title);
-   b.addEventListener('click',()=>{if(settings.notifyRegions.length<=1)return;settings.notifyRegions=settings.notifyRegions.filter(x=>x!==r);J.saveSettings(settings);renderNotifySettings()});
-   chip.append(name,b);group.appendChild(chip);
+ $('viewTabs').addEventListener('click',e=>{const t=e.target.closest('[data-view]');if(t){view=t.dataset.view;draw()}});
+ for(const id of ['category','period'])$(id).addEventListener('change',draw);
+ $('search').addEventListener('input',draw);
+ // Area selection is only in Settings. Each pop-out still has its own URL region.
+ function renderAreaSettings(){
+  $('panelCountSetting').value=String(single?1:settings.panelCount);
+  $('panelCountSetting').disabled=single;
+  const parent=$('areaSettings');parent.replaceChildren();
+  for(let i=0;i<(single?1:settings.panelCount);i++){
+   const item=document.createElement('div');item.className='area-setting';
+   const lab=document.createElement('label');lab.textContent=`エリア ${i+1}`;
+   const sel=J.makeOptions(single?singleRegion:settings.panelRegions[i]);sel.setAttribute('aria-label',`エリア${i+1}の地域`);
+   sel.addEventListener('change',()=>{
+    if(single){singleRegion=sel.value;history.replaceState(null,'','?single=1&region='+encodeURIComponent(singleRegion));draw()}
+    else{settings.panelRegions[i]=sel.value;persist()}
+   });item.append(lab,sel);parent.appendChild(item);
   }
-  $('popupStatus').textContent=settings.popupEnabled?'通知ON：通知画面を開いてください（条件は自動保存されます）':'通知OFF：条件の設定は保存できます';
  }
- $('addNotifyRegion').addEventListener('click',()=>{const id=picker.value;
-  if(!settings.notifyRegions.includes(id)){settings.notifyRegions.push(id);J.saveSettings(settings)}renderNotifySettings()});
- $('notifySince').addEventListener('change',e=>{if(e.target.value){settings.notifySince=e.target.value;J.saveSettings(settings)}});
- let alertClosed=()=>{try{return !alertWindow||alertWindow.closed}catch(e){return true}};
- function openAlert(){
-  if(!settings.popupEnabled){settings.popupEnabled=true;J.saveSettings(settings)}
-  try{alertWindow=window.open('./alerts.html','jma-news-alerts','popup,width=670,height=740,resizable=yes,scrollbars=yes');
-   if(alertWindow)alertWindow.focus();else $('popupStatus').textContent='ポップアップがブロックされました。ブラウザで許可してください。';
-  }catch(e){$('popupStatus').textContent='ウィンドウを開けませんでした。ポップアップを許可してください。'}
-  if(!alertClosed())renderNotifySettings();
+ $('panelCountSetting').addEventListener('change',e=>{settings.panelCount=Number(e.target.value);persist();renderAreaSettings()});
+ $('themeSetting').addEventListener('change',e=>{settings.theme=e.target.value;persist()});
+ $('densitySetting').addEventListener('change',e=>{settings.density=e.target.value;persist()});
+ $('sourceMode').addEventListener('change',e=>{settings.sourceMode=e.target.value;persist();renderProviderChoices()});
+ function renderProviderChoices(){
+  const parent=$('providerChoices');parent.replaceChildren();
+  $('providerList').hidden=settings.sourceMode!=='selected';
+  const knownNames=new Set(J.providers.map(p=>p.name));
+  const extras=[...new Set(items().map(a=>String(a.source||'').trim()).filter(s=>s&&!knownNames.has(s)&&J.providerId({source:s})==='source:'+s))].sort((a,b)=>a.localeCompare(b,'ja')).slice(0,100);
+  const all=[...J.providers.map(p=>({id:p.id,name:p.name})),...extras.map(x=>({id:'source:'+x,name:x}))];
+  for(const provider of all){
+   const lab=document.createElement('label');lab.className='provider-option';
+   const input=document.createElement('input');input.type='checkbox';input.value=provider.id;input.checked=settings.selectedSources.includes(provider.id);
+   input.addEventListener('change',()=>{const set=new Set(settings.selectedSources);input.checked?set.add(provider.id):set.delete(provider.id);settings.selectedSources=[...set];persist()});
+   const label=document.createElement('span');label.textContent=provider.name;
+   lab.append(input,label);parent.append(lab);
+  }
  }
- $('settingsButton').addEventListener('click',()=>{renderNotifySettings();$('settingsDialog').showModal()});
+ function renderSourceLinks(){
+  const sourceLinks=$('sourceLinks');sourceLinks.replaceChildren();
+  for(const {name,url} of J.providers.filter(p=>p.url)){
+   const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name+' ↗';sourceLinks.append(a);
+  }
+ }
+ const picker=J.makeOptions('近畿地方');picker.setAttribute('aria-label','通知する地域を追加');$('notifyRegionSelectHolder').appendChild(picker);
+ function renderNotifyRegions(){
+  const parent=$('notifyRegionChips');parent.replaceChildren();
+  for(const r of settings.notifyRegions){
+   const chip=document.createElement('span');chip.className='region-chip';
+   const text=document.createElement('span');text.textContent=J.regionName(r);
+   const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label',r+'を通知対象から外す');
+   remove.addEventListener('click',()=>{if(settings.notifyRegions.length<=1)return;settings.notifyRegions=settings.notifyRegions.filter(x=>x!==r);persist();renderNotifyRegions()});
+   chip.append(text,remove);parent.append(chip);
+  }
+ }
+ $('addNotifyRegion').addEventListener('click',()=>{if(!settings.notifyRegions.includes(picker.value)){settings.notifyRegions.push(picker.value);persist();renderNotifyRegions()}});
+ $('popupEnabled').addEventListener('change',e=>{settings.popupEnabled=e.target.checked;persist()});
+ $('notifySince').addEventListener('change',e=>{if(e.target.value){settings.notifySince=e.target.value;persist()}});
+ function renderSettings(){
+  renderAreaSettings();$('themeSetting').value=settings.theme;$('densitySetting').value=settings.density;
+  $('sourceMode').value=settings.sourceMode;renderProviderChoices();renderSourceLinks();
+  $('popupEnabled').checked=settings.popupEnabled;$('notifySince').value=settings.notifySince;renderNotifyRegions();
+ }
+ $('settingsButton').addEventListener('click',()=>{renderSettings();$('settingsDialog').showModal()});
  for(const id of ['closeSettings','closeDialog'])$(id).addEventListener('click',()=>$('settingsDialog').close());
  $('settingsDialog').addEventListener('click',e=>{if(e.target===$('settingsDialog'))$('settingsDialog').close()});
- $('popupEnabled').addEventListener('change',e=>{settings.popupEnabled=e.target.checked;J.saveSettings(settings);if(settings.popupEnabled)openAlert();else if(!alertClosed()){alertWindow.close();alertWindow=null}renderNotifySettings()});
- $('openAlertWindow').addEventListener('click',openAlert);
- $('browserNotify').addEventListener('click',async()=>{
-  if(!('Notification' in window)){alert('ブラウザ通知が使えません。専用ウィンドウをご利用ください。');return}
-  try{const p=await Notification.requestPermission();alert(p==='granted'?'ブラウザ通知を許可しました。設定した地域と日時に一致する新着のみ通知します。':'通知が許可されませんでした。ブラウザ設定を確認してください。')}catch(e){alert('通知を有効にできませんでした。')}
+ $('openAlertWindow').addEventListener('click',()=>{
+  if(!settings.popupEnabled){settings.popupEnabled=true;persist()}
+  try{alertWindow=window.open('./alerts.html','jma-news-alerts','popup,width=680,height=750,resizable=yes,scrollbars=yes');if(alertWindow)alertWindow.focus();else alert('ポップアップがブロックされました。ブラウザでこのサイトのポップアップを許可してください。')}
+  catch(e){alert('新着通知ウィンドウを開けませんでした。ポップアップ許可を確認してください。')}
  });
- let knownIds=new Set(items().map(a=>a.id)),hasBaseline=!!payload.generated_at;
- function updated(next){
-  const newer=hasBaseline?(next.items||[]).filter(a=>!knownIds.has(a.id)):[];
-  knownIds=new Set((next.items||[]).map(a=>a.id));hasBaseline=!!next.generated_at||hasBaseline;
-  payload=next;rebuildCategory();draw();
-  const scoped=newer.filter(a=>J.inNotificationScope(a,settings));
-  if(settings.popupEnabled&&scoped.length&&'Notification' in window&&Notification.permission==='granted'){
-   try{new Notification(`気象・防災ニュース：対象地域の新着${scoped.length}件`,{body:scoped.slice(0,2).map(a=>a.title).join(' / ').slice(0,190),tag:'jma-news-updates'})}catch(e){}
-  }
+ let inFlight=false;
+ function reload(){if(inFlight)return;inFlight=true;const s=document.createElement('script');s.src='./data.js?ts='+Date.now();
+  s.onload=()=>{inFlight=false;payload=window.NEWS_PAYLOAD||payload;renderCategories();draw();s.remove()};
+  s.onerror=()=>{inFlight=false;const n=document.createElement('div');n.className='warning';n.textContent='ニュースデータの取得に失敗しました。前回の情報を表示しています。';$('warnings').replaceChildren(n);s.remove()};
+  document.head.appendChild(s);
  }
- function reload(){if(inFlight)return;inFlight=true;const script=document.createElement('script');script.src='./data.js?nocache='+Date.now();
-  script.onload=()=>{inFlight=false;updated(window.NEWS_PAYLOAD||payload);script.remove()};
-  script.onerror=()=>{inFlight=false;$('warnings').innerHTML='<div class="notice">データ読み込みに失敗しました。通信状態を確認してください。</div>';script.remove()};document.head.appendChild(script)
- }
- $('refresh').addEventListener('click',reload);
- window.addEventListener('storage',e=>{if(e.key===J.storeKey){settings=J.loadSettings();renderNotifySettings();draw()}});
- rebuildCategory();draw();renderNotifySettings();setInterval(reload,60000);
+ window.addEventListener('storage',e=>{if(e.key===J.storeKey){settings=J.loadSettings();if($('settingsDialog').open)renderSettings();draw()}});
+ renderCategories();renderSettings();draw();setInterval(reload,60000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)reload()});
 })();
