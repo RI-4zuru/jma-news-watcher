@@ -13,3 +13,15 @@
 @media(max-width:1100px){.topbar{gap:6px;padding:6px 9px}.brand{min-width:150px}.brand-note{display:none}.divider-v{display:none}.tab{padding:5px 6px}.top-select{min-width:95px;max-width:130px}.top-search{width:105px}.topbtn{padding:0 7px}.area-setting-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:780px){.topbar{flex-wrap:wrap;padding:8px 10px}.brand{min-width:0}.top-grow{display:none}.top-search{flex:1;min-width:120px}.grid{grid-template-columns:repeat(min(var(--cols),2),minmax(0,1fr))}.area-panel{height:440px!important}.settings-main{padding:2px 12px 12px}.area-setting-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}.brand-title{font-size:12px}.tabs{order:4;width:100%;justify-content:space-between}.top-select{max-width:150px;flex:1}.summary{gap:8px;padding:4px 9px;flex-wrap:wrap}.summary .right{display:none}.workspace{padding:7px}.area-setting-list{grid-template-columns:1fr}}
+
+/* v5: category overlay and responsive 1–8 monitoring panels */
+.category-control{flex:0 0 auto;position:relative}
+.category-trigger{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;max-width:182px;min-width:128px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.category-trigger span{margin-left:auto}
+.category-menu{position:fixed;z-index:1100;display:grid;grid-template-columns:repeat(var(--menu-cols,4),minmax(0,1fr));gap:3px;padding:9px;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 45px #0006;white-space:normal}
+.category-menu[hidden]{display:none!important}
+.category-option{border:1px solid transparent;border-radius:6px;padding:7px 6px;text-align:left;font-size:11px;line-height:1.4;background:var(--surface2);color:var(--ink);min-height:31px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.category-option:hover{background:var(--accent-soft);border-color:var(--border)}
+.category-option.active{color:var(--accent);background:var(--accent-soft);border-color:var(--accent);font-weight:800}
+@media(max-width:780px){.area-panel{height:var(--panel-h,370px)!important}.category-trigger{min-width:110px;max-width:150px}}
+@media(max-width:520px){.category-menu{gap:2px;padding:6px}.category-option{font-size:10px;padding:5px 4px;min-height:27px}.area-panel{height:var(--panel-h,320px)!important}}

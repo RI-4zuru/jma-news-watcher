@@ -26,7 +26,7 @@ CATS = CFG['categories']
 CATS_REGEX = [(c, re.compile(c['pattern'], re.I)) for c in CATS]
 EXCLUDE = re.compile(CFG['exclude_pattern'], re.I)
 IMPORTANT = re.compile(CFG['important_pattern'], re.I)
-from geography import extract_areas
+from geography import extract_areas, PREFECTURES
 
 
 def read_old():
@@ -50,6 +50,76 @@ def normalize_title(title, source):
 def article_id(title, source):
     norm = re.sub(r'[\s\u3000\W_]+', '', title, flags=re.UNICODE).lower()
     return hashlib.sha256((norm + '|' + source.lower()).encode('utf-8')).hexdigest()[:20]
+
+
+def story_fingerprint(title):
+    """Stable article text key, independent of RSS query, source and prefecture labels."""
+    title = normalize_title(str(title), '')
+    # Remove an optional leading feed/location label; other headline text is kept.
+    title = re.sub(r'^[\s　]*[【\[［][^】\]］]{1,28}[】\]］]\s*', '', title)
+    return re.sub(r'[\W_]+', '', title, flags=re.UNICODE).casefold()
+
+
+def areas_for_evidence(title):
+    areas = set(extract_areas(title))
+    # [大阪] / 【兵庫】 at the start of syndicated headlines is an explicit
+    # regional edition tag, not an ambiguous free-text city name.
+    label = re.match(r'^[\s　]*[【\[［]([^】\]］]{1,12})[】\]］]', str(title))
+    if label:
+        tag = label.group(1)
+        if tag not in PREFECTURES:
+            tag = re.sub(r'[都府県]$', '', tag)
+        if tag in PREFECTURES:
+            areas.add(tag)
+    return sorted(areas)
+
+
+def merge_article_records(records, preferred_ids=()):
+    """Collapse syndicated/duplicate headlines while preserving all prefectures.
+
+    Different reports about the *same event* with different headlines stay separate.
+    Identical generic headlines more than 36 hours apart are not merged.
+    Old IDs are processed first so bookmarked IDs remain stable.
+    """
+    preferred_ids = set(preferred_ids)
+    records = sorted(records, key=lambda a: (a['id'] not in preferred_ids, a.get('published_at', ''), a.get('id', '')))
+    groups = {}
+    result = []
+    for row in records:
+        fingerprint = story_fingerprint(row.get('title', ''))
+        try:
+            published = dt.datetime.fromisoformat(row['published_at'].replace('Z', '+00:00'))
+        except (ValueError, KeyError, AttributeError):
+            published = NOW
+        match = None
+        if fingerprint:
+            for existing, existing_time in groups.get(fingerprint, []):
+                if abs((published - existing_time).total_seconds()) < 36 * 3600:
+                    match = existing
+                    break
+        titles = list(dict.fromkeys(row.get('area_titles') or [row.get('title', '')]))[:24]
+        sources = row.get('sources') or [{'source':row.get('source',''), 'source_url':row.get('source_url','')}]
+        sources = [src for src in sources if src.get('source')]
+        if match is None:
+            article = dict(row)
+            article['area_titles'] = titles
+            article['sources'] = sources[:24]
+            article['areas'] = sorted(set(a for t in titles for a in areas_for_evidence(t)))
+            article['categories'] = sorted(set(row.get('categories') or []))
+            result.append(article)
+            if fingerprint:
+                groups.setdefault(fingerprint, []).append((article, published))
+        else:
+            match['area_titles'] = list(dict.fromkeys(match['area_titles'] + titles))[:24]
+            existing_sources = match.get('sources') or []
+            source_names = {src.get('source') for src in existing_sources}
+            match['sources'] = existing_sources + [src for src in sources if src.get('source') not in source_names][:max(0,24-len(existing_sources))]
+            match['areas'] = sorted(set(a for t in match['area_titles'] for a in areas_for_evidence(t)))
+            match['categories'] = sorted(set(match.get('categories', [])) | set(row.get('categories', [])))
+            match['priority'] = max(int(match.get('priority', 1)), int(row.get('priority', 1)))
+            if row.get('published_at', '') < match.get('published_at', ''):
+                match['published_at'] = row['published_at']
+    return result
 
 
 def fetch_one(feed_query):
@@ -152,7 +222,7 @@ def main():
     prior = {x['id']: x for x in old['items']} if old else {}
     # Reassess saved headlines after improvements to location detection.
     for article in prior.values():
-        article['areas'] = extract_areas(article.get('title', ''))
+        article['areas'] = sorted(set(a for t in (article.get('area_titles') or [article.get('title','')]) for a in areas_for_evidence(t)))
     gathered = []
     errors = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
@@ -174,14 +244,16 @@ def main():
             existing = combined[article['id']]
             article['categories'] = sorted(set(existing['categories']) | set(article['categories']))
             # Never preserve a previous false-positive area assignment.
-            article['areas'] = extract_areas(article['title'])
+            article['area_titles'] = list(dict.fromkeys((existing.get('area_titles') or [existing['title']]) + [article['title']]))[:24]
+            article['sources'] = existing.get('sources') or [{'source':existing.get('source',''), 'source_url':existing.get('source_url','')}]
+            article['areas'] = sorted(set(a for t in article['area_titles'] for a in areas_for_evidence(t)))
             article['priority'] = max(existing['priority'], article['priority'])
             if existing['published_at'] < article['published_at']:
                 article['published_at'] = existing['published_at']
         combined[article['id']] = article
     cutoff = NOW - dt.timedelta(days=CFG['retention_days'])
     items = []
-    for item in combined.values():
+    for item in merge_article_records(combined.values(), preferred_ids=prior.keys()):
         try:
             if dt.datetime.fromisoformat(item['published_at'].replace('Z', '+00:00')) >= cutoff:
                 items.append(item)

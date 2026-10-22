@@ -2,9 +2,9 @@
 (() => {
  const $=id=>document.getElementById(id),J=window.JMA;
  let settings=J.loadSettings(),payload=window.NEWS_PAYLOAD||{items:[]},baseline=!!payload.generated_at;
- let known=new Set((payload.items||[]).map(a=>a.id)),busy=false;
+ let known=new Set(J.dedupeStories(payload.items||[]).map(a=>a.id)),busy=false;
  const fresh=new Set(),dismissed=new Set();
- const candidates=()=>(payload.items||[]).filter(a=>J.inNotificationScope(a,settings)&&!dismissed.has(a.id)).sort((a,b)=>J.timestamp(b)-J.timestamp(a));
+ const candidates=()=>J.dedupeStories(payload.items||[]).filter(a=>J.inNotificationScope(a,settings)&&!dismissed.has(a.id)).sort((a,b)=>J.timestamp(b)-J.timestamp(a));
  function render(){
   J.applyTheme(settings);
   $('state').textContent=settings.popupEnabled?'監視ON':'監視OFF';$('state').classList.toggle('off',!settings.popupEnabled);
@@ -19,8 +19,9 @@
   }
  }
  function receive(next){
-  const arriving=baseline?(next.items||[]).filter(a=>!known.has(a.id)):[];
-  known=new Set((next.items||[]).map(a=>a.id));baseline=!!next.generated_at||baseline;payload=next;
+  const uniqueNext=J.dedupeStories(next.items||[]);
+  const arriving=baseline?uniqueNext.filter(a=>!known.has(a.id)):[];
+  known=new Set(uniqueNext.map(a=>a.id));baseline=!!next.generated_at||baseline;payload=next;
   const scoped=settings.popupEnabled?arriving.filter(a=>J.inNotificationScope(a,settings)):[];
   for(const a of scoped)fresh.add(a.id);
   if(scoped.length){
