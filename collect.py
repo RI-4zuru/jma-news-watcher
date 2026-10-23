@@ -101,6 +101,50 @@ def fetch_one(feed_query):
     return records
 
 
+def headline_key(title):
+    """Normalize insignificant headline punctuation, but keep distinct place names."""
+    return re.sub(r'[\s\W_]+', '', (title or '').casefold(), flags=re.UNICODE)
+
+
+def merge_repeated_articles(records):
+    """Collapse duplicate headlines across RSS searches/publishers within 48h.
+
+    Keep every detected area, category, publisher and original ID. An older
+    stored record is preferred so bookmark references remain stable.
+    """
+    groups = {}
+    for original in records:
+        entry = dict(original)
+        entry['areas'] = list(entry.get('areas') or [])
+        entry['categories'] = list(entry.get('categories') or [])
+        entry['aliases'] = list(entry.get('aliases') or [entry['id']])
+        entry['sources'] = list(entry.get('sources') or [
+            {'source': entry.get('source', ''), 'source_url': entry.get('source_url', '')}])
+        key = headline_key(entry.get('title', ''))
+        if not key:
+            key = entry['id']
+        bucket = groups.setdefault(key, [])
+        stamp = dt.datetime.fromisoformat(entry['published_at'].replace('Z', '+00:00'))
+        match = None
+        for existing in bucket:
+            when = dt.datetime.fromisoformat(existing['published_at'].replace('Z', '+00:00'))
+            if abs((stamp - when).total_seconds()) < 48 * 3600:
+                match = existing
+                break
+        if match is None:
+            bucket.append(entry)
+            continue
+        match['areas'] = list(dict.fromkeys(match['areas'] + entry['areas']))
+        match['categories'] = list(dict.fromkeys(match['categories'] + entry['categories']))
+        match['aliases'] = list(dict.fromkeys(match['aliases'] + entry['aliases']))
+        match['priority'] = max(match.get('priority', 1), entry.get('priority', 1))
+        names = {x.get('source') for x in match['sources']}
+        match['sources'].extend(x for x in entry['sources'] if x.get('source') not in names)
+        if stamp < dt.datetime.fromisoformat(match['published_at'].replace('Z', '+00:00')):
+            match['published_at'] = entry['published_at']
+    return [entry for group in groups.values() for entry in group]
+
+
 def telegram_send(new_items, first_run):
     token = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip()
     chat = os.environ.get('TELEGRAM_CHAT_ID', '').strip()
@@ -187,9 +231,13 @@ def main():
                 items.append(item)
         except ValueError:
             pass
+    # Sort older records first to keep existing IDs/bookmarks when duplicates merge.
+    items.sort(key=lambda x: x['published_at'])
+    items = merge_repeated_articles(items)
     items.sort(key=lambda x: x['published_at'], reverse=True)
     items = items[:CFG['max_items']]
-    newly_added = [x for x in items if x['id'] not in prior] if success and not first_run else []
+    old_ids = set(prior)
+    newly_added = [x for x in items if not old_ids.intersection(x.get('aliases', [x['id']]))] if success and not first_run else []
     payload = {
         'generated_at': NOW.isoformat().replace('+00:00', 'Z'),
         # Prevent notification floods if the first scan cannot reach any feed.
@@ -202,10 +250,9 @@ def main():
     STORE.parent.mkdir(parents=True, exist_ok=True)
     SITE.mkdir(parents=True, exist_ok=True)
     formatted = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
-    # Only local HTML needs JS; data.json is also available for other integrations.
+    # v4 refreshed pages load data.json as data rather than executing RSS data as JS.
     STORE.write_text(formatted + '\n', encoding='utf-8')
     (SITE / 'data.json').write_text(formatted + '\n', encoding='utf-8')
-    (SITE / 'data.js').write_text('window.NEWS_PAYLOAD = ' + formatted + ';\n', encoding='utf-8')
     print(f'Successful feeds: {success}/{len(CFG["feeds"])}. Items: {len(items)}. New: {len(newly_added)}. First run: {first_run}')
     telegram_send(newly_added, first_run)
     # Broken feeds must be visible in the UI, but don't discard existing results.
