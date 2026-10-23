@@ -2,8 +2,8 @@ name: Collect and publish weather news
 
 on:
   schedule:
-    # Fastest GitHub Actions schedule is every 5 minutes (UTC); delays/skips possible.
-    - cron: '2-59/5 * * * *'
+    # Run at 7,17,...,57 UTC minutes; schedule delays and skips are possible.
+    - cron: '7-57/10 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -46,7 +46,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add store/news.json site/data.js site/data.json
+          git add store/news.json site/data.json
           if ! git diff --cached --quiet; then
             git commit -m 'Update news collection [skip ci]'
             git push
