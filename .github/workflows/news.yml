@@ -26,9 +26,28 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: jma-news-publishing
-  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: jma-news-collect
+      cancel-in-progress: false
+    steps:
+      # 既存の収集処理はそのまま
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    concurrency:
+      group: jma-news-deploy
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy website
+        uses: actions/deploy-pages@v4
+        id: deployment
 
 jobs:
   collect:
