@@ -2,7 +2,7 @@
 'use strict';
 (() => {
  const $=id=>document.getElementById(id),J=window.JMA;
- let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[]},categoryFilter='all';
+ let payload=window.NEWS_PAYLOAD||{items:[],categories:[],errors:[]};
  let settings=J.loadSettings(),view='all',busy=false,alertWindow=null;
  const params=new URLSearchParams(location.search),single=params.get('single')==='1';
  let singleRegion=params.get('region');
@@ -11,7 +11,7 @@
  const items=()=>payload.items||[];
  const saved=a=>settings.saved.includes(a.id);
  const filtered=()=>{
-  const category=categoryFilter,period=$('period').value,query=$('search').value.trim().toLocaleLowerCase();
+  const category=$('category').value,period=$('period').value,query=$('search').value.trim().toLocaleLowerCase();
   return items().filter(a=>{
    if(!J.matchesSource(a,settings))return false;
    if(category!=='all'&&!(a.categories||[]).includes(category))return false;
@@ -24,65 +24,26 @@
   }).sort((a,b)=>J.timestamp(b)-J.timestamp(a));
  };
  function renderStatus(){
-  $('statAll').textContent=J.dedupeStories(items()).length;
-  $('statDay').textContent=J.dedupeStories(items()).filter(J.isNew).length;
+  $('statAll').textContent=items().length;
+  $('statDay').textContent=items().filter(J.isNew).length;
   $('status').textContent=payload.generated_at?'取得 '+J.formatDate(payload.generated_at):'初回収集待機中';
   $('sourceStatus').textContent=settings.sourceMode==='all'?'全配信元':settings.sourceMode==='major'?'主要メディアのみ':'指定メディアのみ';
   $('openAlertWindow').classList.toggle('on',settings.popupEnabled);
   let warning='';
   if(!payload.generated_at)warning='まだ収集データがありません。GitHub Actionsの初回収集を実行してください。';
   else if((payload.errors||[]).length)warning=`一部のRSS取得に失敗しました（${payload.errors.length}件）。取得済みの記事を表示中です。`;
-  const last=Date.parse(payload.generated_at||'');
-  if(last&&Date.now()-last>35*60000)warning=(warning?warning+' ':'')+'最終収集から35分以上経過しています。GitHub Actionsの定期実行を確認してください。';
   const e=$('warnings');e.replaceChildren();if(warning){const n=document.createElement('div');n.className='warning';n.textContent='⚠ '+warning;e.appendChild(n)}
  }
- function closeCategoryMenu(){
-  $('categoryMenu').hidden=true;$('categoryButton').setAttribute('aria-expanded','false');
- }
- function positionCategoryMenu(){
-  const button=$('categoryButton'),menu=$('categoryMenu'),rect=button.getBoundingClientRect();
-  const cols=window.innerWidth>=690?4:window.innerWidth>=460?3:2;
-  const width=Math.min(window.innerWidth-16,cols*156+18);
-  menu.style.width=width+'px';menu.style.setProperty('--menu-cols',cols);
-  menu.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-width-8))+'px';
-  const spaceBelow=window.innerHeight-rect.bottom-10;
-  // No internal scrollbar on desktop; choose above/below based on available space.
-  const expectedHeight=Math.ceil(menu.children.length/cols)*33+20;
-  const top=spaceBelow>=expectedHeight||spaceBelow>=rect.top?rect.bottom+5:rect.top-expectedHeight-5;
-  menu.style.top=Math.max(6,top)+'px';
-  menu.style.maxHeight=window.innerHeight-12+'px';
-  menu.style.overflowY=expectedHeight>window.innerHeight-12?'auto':'visible';
- }
  function renderCategories(){
-  const menu=$('categoryMenu');menu.replaceChildren();
-  const choices=[{id:'all',name:'すべての分類',icon:'✓'},...(payload.categories||[])];
-  if(!choices.some(c=>c.id===categoryFilter))categoryFilter='all';
-  for(const c of choices){
-   const b=document.createElement('button');b.type='button';b.className='category-option'+(c.id===categoryFilter?' active':'');
-   b.textContent=(c.icon?c.icon+' ':'')+c.name;b.dataset.category=c.id;b.setAttribute('aria-pressed',String(c.id===categoryFilter));menu.append(b);
-  }
-  const chosen=choices.find(c=>c.id===categoryFilter);
-  $('categoryButton').innerHTML='';$('categoryButton').append(document.createTextNode((chosen.icon&&categoryFilter!=='all'?chosen.icon+' ':'')+chosen.name+' '));
-  const v=document.createElement('span');v.textContent='▾';v.setAttribute('aria-hidden','true');$('categoryButton').append(v);
-  if(!menu.hidden)positionCategoryMenu();
+  const select=$('category'),old=select.value;select.replaceChildren(new Option('すべての分類','all'));
+  for(const c of payload.categories||[])select.add(new Option(`${c.icon} ${c.name}`,c.id));
+  if([...select.options].some(o=>o.value===old))select.value=old;
  }
- $('categoryButton').addEventListener('click',()=>{
-  const menu=$('categoryMenu');menu.hidden=!menu.hidden;$('categoryButton').setAttribute('aria-expanded',String(!menu.hidden));
-  if(!menu.hidden)positionCategoryMenu();
- });
- $('categoryMenu').addEventListener('click',e=>{
-  const b=e.target.closest('[data-category]');if(!b)return;categoryFilter=b.dataset.category;
-  closeCategoryMenu();renderCategories();draw();
- });
- document.addEventListener('pointerdown',e=>{
-  if(!$('categoryMenu').hidden&&!e.target.closest('.category-control'))closeCategoryMenu();
- });
- document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCategoryMenu()});
  function story(a){
   const c=(payload.categories||[]).find(x=>(a.categories||[]).includes(x.id));
   const level=Number(a.priority)||1,flag=J.isNew(a)?'<span class="flag flag-new">NEW</span>':'';
   const priority=level>=3?'<span class="flag flag-urgent">重要</span>':'';
-  const source=(a.source||'配信元不明')+((a.sources||[]).length>1?' ほか'+((a.sources||[]).length-1)+'社':'');
+  const source=a.source||'配信元不明';
   const date=J.formatDate(a.published_at);
   return `<article class="story priority${level}" data-id="${esc(a.id)}">
    <div class="story-meta"><time class="story-date">${esc(date)}</time><span class="story-source" title="${esc(source)}">${esc(source)}</span>${c?`<span class="story-category" title="${esc(c.name)}">${esc(c.icon)} ${esc(c.name)}</span>`:''}${flag}${priority}</div>
@@ -92,38 +53,27 @@
  function draw(){
   J.applyTheme(settings);renderStatus();
   document.querySelectorAll('[data-view]').forEach(x=>{const active=x.dataset.view===view;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))});
-  const n=single?1:settings.panelCount;
-  const grid=$('areaGrid');
-  updateGridLayout(n);
+  const n=single?1:settings.panelCount,cols=n<=3?n:n===4?2:3,rows=Math.ceil(n/cols);
+  const grid=$('areaGrid');grid.style.setProperty('--cols',cols);
+  grid.style.setProperty('--panel-h',rows===1?'calc(100dvh - 125px)':'max(280px,calc((100dvh - 147px)/2))');
   const positions=[...grid.querySelectorAll('.area-body')].map(e=>e.scrollTop);
-  const base=J.dedupeStories(filtered());grid.replaceChildren();
+  const base=filtered();grid.replaceChildren();
   for(let i=0;i<n;i++){
    const r=single?singleRegion:settings.panelRegions[i];
-   const matches=J.dedupeStories(base.filter(a=>J.matchesRegion(a,r))); 
+   const matches=base.filter(a=>J.matchesRegion(a,r));
    const section=document.createElement('section');section.className='area-panel';section.setAttribute('aria-label','エリア'+(i+1)+' '+J.regionName(r));
    const url='./index.html?single=1&region='+encodeURIComponent(r);
    section.innerHTML=`<div class="area-head"><span class="area-index">${String(i+1).padStart(2,'0')}</span><span class="area-name" title="${esc(J.regionName(r))}">${esc(J.regionName(r))}</span><span class="area-count">${matches.length}件</span><a class="popout" href="${esc(single?'./index.html':url)}" target="${single?'_self':'_blank'}" rel="noopener" aria-label="${single?'全エリアに戻る':J.regionName(r)+'を別ウィンドウで表示'}">${single?'← 戻る':'↗ 別画面'}</a></div><div class="area-body">${matches.length?matches.slice(0,150).map(story).join(''):`<div class="empty">この地域・条件に合う記事はありません。<small>${settings.sourceMode==='selected'?'配信元の選択も確認してください。':'設定から地域を変更できます。'}</small></div>`}${matches.length>150?'<div class="empty">150件まで表示。期間・分類で絞り込んでください。</div>':''}</div>`;
    grid.appendChild(section);section.querySelector('.area-body').scrollTop=positions[i]||0;
   }
  }
- function updateGridLayout(count){
-  const grid=$('areaGrid'),width=grid.clientWidth||window.innerWidth-20;
-  // The grid dynamically balances readability against the number of panels.
-  const cols=Math.max(1,Math.min(count,4,Math.floor((width+9)/315)||1));
-  const rows=Math.ceil(count/cols);
-  grid.style.setProperty('--cols',cols);
-  const available=Math.max(310,window.innerHeight-grid.getBoundingClientRect().top-24);
-  const height=Math.max(240,Math.floor((available-9*(rows-1))/rows));
-  grid.style.setProperty('--panel-h',height+'px');
- }
- window.addEventListener('resize',()=>{updateGridLayout(single?1:settings.panelCount);if(!$('categoryMenu').hidden)positionCategoryMenu()});
  function persist(){J.saveSettings(settings);draw()}
  $('areaGrid').addEventListener('click',e=>{
   const b=e.target.closest('[data-action="bookmark"]');if(!b)return;
   const id=b.dataset.id,ids=new Set(settings.saved);ids.has(id)?ids.delete(id):ids.add(id);settings.saved=[...ids].slice(-4000);persist();
  });
  $('viewTabs').addEventListener('click',e=>{const t=e.target.closest('[data-view]');if(t){view=t.dataset.view;draw()}});
- $('period').addEventListener('change',draw);
+ for(const id of ['category','period'])$(id).addEventListener('change',draw);
  $('search').addEventListener('input',draw);
  // Area selection is only in Settings. Each pop-out still has its own URL region.
  function renderAreaSettings(){
@@ -148,7 +98,7 @@
   const parent=$('providerChoices');parent.replaceChildren();
   $('providerList').hidden=settings.sourceMode!=='selected';
   const knownNames=new Set(J.providers.map(p=>p.name));
-  const extras=[...new Set(items().flatMap(a=>(a.sources||[{source:a.source}]).map(src=>String(src.source||'').trim())).filter(s=>s&&!knownNames.has(s)&&J.providerId({source:s})==='source:'+s))].sort((a,b)=>a.localeCompare(b,'ja')).slice(0,100);
+  const extras=[...new Set(items().map(a=>String(a.source||'').trim()).filter(s=>s&&!knownNames.has(s)&&J.providerId({source:s})==='source:'+s))].sort((a,b)=>a.localeCompare(b,'ja')).slice(0,100);
   const all=[...J.providers.map(p=>({id:p.id,name:p.name})),...extras.map(x=>({id:'source:'+x,name:x}))];
   for(const provider of all){
    const lab=document.createElement('label');lab.className='provider-option';
