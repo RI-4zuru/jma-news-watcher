@@ -2,8 +2,8 @@ name: Collect and publish weather news
 
 on:
   schedule:
-    # Run at 7,17,...,57 UTC minutes; schedule delays and skips are possible.
-    - cron: '7-57/10 * * * *'
+    # Attempt every 5 minutes at 3,8,...,58 UTC. GitHub may delay or skip scheduled runs.
+    - cron: '3-58/5 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
